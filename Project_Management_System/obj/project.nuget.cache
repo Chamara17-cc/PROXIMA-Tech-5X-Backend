@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "QUn0lZu+sfXJnKLc1/skwjgiCs/S8Zc9hwxPzRawzb0Rbz6thpJv1sAssq6rE2uXz+JnicefRTs66xIoLI4Tig==",
+  "dgSpecHash": "FAd3yKLZ0oUJgyteZbLkaQR9jzNmramqI/KrZWfPE8AXF+JImr+vEU4NecVbLH0PRSwgnCOUcFyhL+PYE9BWzw==",
   "success": true,
   "projectFilePath": "D:\\Software Project\\Git hub -tech X\\PROXIMA-Tech-5X-Backend\\Project_Management_System\\Project_Management_System.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\ChAmArA\\.nuget\\packages\\automapper\\13.0.1\\automapper.13.0.1.nupkg.sha512",
     "C:\\Users\\ChAmArA\\.nuget\\packages\\azure.core\\1.24.0\\azure.core.1.24.0.nupkg.sha512",
     "C:\\Users\\ChAmArA\\.nuget\\packages\\azure.identity\\1.6.0\\azure.identity.1.6.0.nupkg.sha512",
     "C:\\Users\\ChAmArA\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
