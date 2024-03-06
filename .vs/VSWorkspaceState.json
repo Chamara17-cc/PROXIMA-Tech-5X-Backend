@@ -1,6 +1,9 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\Project_Management_System",
+    "\\Project_Management_System\\Models"
   ],
+  "SelectedNode": "\\Project_Management_System\\Models\\UserRole.cs",
   "PreviewInSolutionExplorer": false
 }
