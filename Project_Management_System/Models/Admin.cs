@@ -8,5 +8,7 @@
 
 
         public List<Project> Projects { get; set; }
+
+        public List<ViewInvoice> ViewInvoices { get; set; }
     }
 }

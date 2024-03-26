@@ -12,6 +12,10 @@ namespace Project_Management_System.Models
         public double ExpenseAmount { get; set; }
         public DateTime PaymentDate { get; set; }
         public double PaymentAmount { get; set; }
+       
         public int ProjectId { get; set; }
+        public Project Project { get; set; }
+
+        public List<Invoice> Invoices { get; set;}
     }
 }
