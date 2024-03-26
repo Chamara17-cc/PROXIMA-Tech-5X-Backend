@@ -5,6 +5,6 @@
         public int Id { get; set; }
 
         public int ProjectManagerId { get; set; }
-        public List<Project> Projects { get; set; }
+       // public List<Project> Projects { get; set; }
     }
 }
