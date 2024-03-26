@@ -5,6 +5,7 @@ namespace Project_Management_System.Models
 {
     public class Users 
     {
+        internal string JobRoleName;
 
         [Key]
         public string UserId { get; set; }
@@ -38,9 +39,9 @@ namespace Project_Management_System.Models
 
         public bool IsActive { get; set; } = true;
 
-        public string JobRoleId { get; set; }
+        public int JobRoleId { get; set; }
 
-        public string JobCategoryId { get; set; }
+        public int JobCategoryId { get; set; }
 
 
         public int UserCategoryId { get; set; }
