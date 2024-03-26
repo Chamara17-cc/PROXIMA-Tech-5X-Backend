@@ -17,6 +17,7 @@ namespace Project_Management_System.Models
         [JsonIgnore]
         public Project Project {  get; set; }   
         public int ProjectId { get; set; }
+        public ICollection <ViewInvoice> ViewInvoices { get; set; }
 
     }
 }

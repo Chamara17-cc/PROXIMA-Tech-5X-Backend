@@ -8,5 +8,8 @@
 
 
         public List<Project> Projects { get; set; }
+
+        public ICollection<ViewInvoice> ViewInvoices { get; set; }
+        public ICollection<ViewReport> ViewReports { get; set; }
     }
 }

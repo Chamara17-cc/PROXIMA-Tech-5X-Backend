@@ -81,5 +81,7 @@ namespace Project_Management_System.Models
         public string JobRoleId { get; set; }
 
         public string JobCategoryId { get; set; }
+
+           
     }
 }
