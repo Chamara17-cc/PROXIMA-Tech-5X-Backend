@@ -1,8 +1,7 @@
 ﻿namespace Project_Management_System.DTOs
 {
-    public class GetBudgetDTO
+    public class AddBudgetDTO
     {
-        public int BudgetId { get; set; }
         public string Objectives { get; set; } = string.Empty;
         public double SelectionprocessCost { get; set; }
         public double LicenseCost { get; set; }
@@ -12,8 +11,7 @@
         public double DeveloperCost { get; set; }
         public double OtherExpenses { get; set; }
         public double TotalCost { get; set; }
-        public string BudgetStatus { get; set; } = string.Empty;
 
-        public int ProjectId { get; set; } = 1;
+        //public DateTime Date { get; set; }
     }
 }

@@ -35,5 +35,7 @@ namespace Project_Management_System.Models
 
         public List<DeveloperProject> DeveloperProjects { get; set; }
 
+        public Invoice Invoice { get; set; }
+
     }
 }

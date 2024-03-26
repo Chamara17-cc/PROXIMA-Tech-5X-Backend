@@ -11,5 +11,7 @@
 
 
         public List<DeveloperProject> DeveloperProjects { get; set; }
+
+        public DeveloperFinancialRecipt DeveloperFinancialRecipt { get; set; }
     }
 }

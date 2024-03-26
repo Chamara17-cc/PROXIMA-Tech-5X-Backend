@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Project_Management_System.Models
 {
@@ -12,6 +13,10 @@ namespace Project_Management_System.Models
         public double ExpenseAmount { get; set; }
         public DateTime PaymentDate { get; set; }
         public double PaymentAmount { get; set; }
+
+        [JsonIgnore]
+        public Project Project {  get; set; }   
         public int ProjectId { get; set; }
+
     }
 }
