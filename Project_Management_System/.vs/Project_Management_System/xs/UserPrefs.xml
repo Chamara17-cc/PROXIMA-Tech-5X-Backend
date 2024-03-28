@@ -1,0 +1,28 @@
+﻿<Properties StartupConfiguration="{038424A3-B6C8-4A18-BDC6-0E5DF84C0C3F}|https">
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.Project__Management__System PreferredExecutionTarget="/Applications/Google Chrome.app" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="AutoMapper.cs">
+    <Files>
+      <File FileName="AutoMapper.cs" Line="13" Column="1" />
+      <File FileName="Program.cs" Line="27" Column="43" />
+      <File FileName="appsettings.json" />
+      <File FileName="Data/DataContext.cs" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="Project_Management_System">
+            <Node name="Project_Management_System" expanded="True">
+              <Node name="Models" selected="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+</Properties>

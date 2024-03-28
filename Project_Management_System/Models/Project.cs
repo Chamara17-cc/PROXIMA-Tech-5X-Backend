@@ -18,6 +18,13 @@ namespace Project_Management_System.Models
         public string? TimeLine { get; set; }
         public string? Objectives { get; set; }
 
+        //ProjectTimeCalculation columns
+        public int TotalProjectCompletedHours { get; set; }
+        public int TotalProjectRemainingHours { get; set; }
+        public int TotalProjectHours { get; set; }
+
+
+
         public Client Client { get; set; }
         public int ClientId { get; set; }
 
@@ -35,7 +42,7 @@ namespace Project_Management_System.Models
 
         public List<DeveloperProject> DeveloperProjects { get; set; }
         public List<FileResource> FileResources { get; set; }
-        public List<Invoice> Invoices { get; set; } 
+        public List<Invoice> Invoices { get; set; }
 
     }
 }
