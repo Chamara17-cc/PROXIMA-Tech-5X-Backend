@@ -14,6 +14,22 @@ namespace Project_Management_System.Models
         public DateTime CreatedDate { get; set; }
         public DateTime DueDate { get; set; }
         public int Priority { get; set; }
+
+        //TaskTimeCalculation columns
+        public DateTime TaskStartTime { get; set; }
+        public DateTime TaskPauseTime { get; set; }
+        public DateTime TaskCompleteTime { get; set; }
+        public int TotalTaskTimeDuration { get; set; }
+        public int TaskStatus { get; set; }
+        // TaskStatus == 1 => completed
+        // TaskStatus == 2 => Inprogress
+        // TaskStatus == 3 => Remaining
+
+
+
+
+
+
         //     public int UserId { get; set; }
 
         public Project Project { get; set; }

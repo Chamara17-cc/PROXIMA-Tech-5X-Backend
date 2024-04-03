@@ -1,27 +1,26 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Suraj Madhushan\\Desktop\\sw_projectNew\\Proxima-backend\\PROXIMA-Tech-5X-Backend\\Project_Management_System\\Project_Management_System.csproj": {}
+    "/Users/pabodyaubeywickrama/Documents/GitHub/PROXIMA-Tech-5X-Backend/Project_Management_System/Project_Management_System.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Suraj Madhushan\\Desktop\\sw_projectNew\\Proxima-backend\\PROXIMA-Tech-5X-Backend\\Project_Management_System\\Project_Management_System.csproj": {
+    "/Users/pabodyaubeywickrama/Documents/GitHub/PROXIMA-Tech-5X-Backend/Project_Management_System/Project_Management_System.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Suraj Madhushan\\Desktop\\sw_projectNew\\Proxima-backend\\PROXIMA-Tech-5X-Backend\\Project_Management_System\\Project_Management_System.csproj",
+        "projectUniqueName": "/Users/pabodyaubeywickrama/Documents/GitHub/PROXIMA-Tech-5X-Backend/Project_Management_System/Project_Management_System.csproj",
         "projectName": "Project_Management_System",
-        "projectPath": "C:\\Users\\Suraj Madhushan\\Desktop\\sw_projectNew\\Proxima-backend\\PROXIMA-Tech-5X-Backend\\Project_Management_System\\Project_Management_System.csproj",
-        "packagesPath": "C:\\Users\\Suraj Madhushan\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Suraj Madhushan\\Desktop\\sw_projectNew\\Proxima-backend\\PROXIMA-Tech-5X-Backend\\Project_Management_System\\obj\\",
+        "projectPath": "/Users/pabodyaubeywickrama/Documents/GitHub/PROXIMA-Tech-5X-Backend/Project_Management_System/Project_Management_System.csproj",
+        "packagesPath": "/Users/pabodyaubeywickrama/.nuget/packages/",
+        "outputPath": "/Users/pabodyaubeywickrama/Documents/GitHub/PROXIMA-Tech-5X-Backend/Project_Management_System/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Suraj Madhushan\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/pabodyaubeywickrama/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net7.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "/usr/local/share/dotnet/sdk/7.0.312/Sdks/Microsoft.NET.Sdk.Web/library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -104,7 +103,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.312/RuntimeIdentifierGraph.json"
         }
       }
     }
