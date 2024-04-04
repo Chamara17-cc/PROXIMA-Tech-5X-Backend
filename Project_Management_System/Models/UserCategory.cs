@@ -10,8 +10,6 @@ namespace Project_Management_System.Models
         [Required]
         public string CategoryName { get; set; }
 
-        public List<Users> Users { get; set; }
-
 
     }
 }

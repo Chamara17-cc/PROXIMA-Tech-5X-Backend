@@ -21,7 +21,6 @@ namespace Project_Management_System.Models
 
         [JsonIgnore]
         public Project Project { get; set; }
-        public int ProjectId { get; set; }
-        public ICollection<ViewReport> ViewReports { get; set; }
+        public int ProjectId { get; set; } 
     }
 }

@@ -1,10 +1,8 @@
 {
   "ExpandedNodes": [
     "",
-    "\\Data",
-    "\\Migrations",
     "\\Models"
   ],
-  "SelectedNode": "\\Models\\Admin.cs",
+  "SelectedNode": "\\Models\\ViewResource.cs",
   "PreviewInSolutionExplorer": false
 }

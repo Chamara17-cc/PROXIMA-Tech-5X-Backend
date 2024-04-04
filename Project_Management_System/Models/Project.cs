@@ -34,10 +34,6 @@ namespace Project_Management_System.Models
         public int ProjectManagerId { get; set; }
 
         public List<DeveloperProject> DeveloperProjects { get; set; }
-        public List<FileResource> FileResources { get; set; }
-        public List<Invoice> Invoices { get; set; } 
-
-        public Invoice Invoice { get; set; }
 
     }
 }

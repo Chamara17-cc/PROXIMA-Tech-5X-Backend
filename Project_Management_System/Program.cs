@@ -1,5 +1,4 @@
 global using Microsoft.EntityFrameworkCore;
-using Project_Management_System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +27,7 @@ builder.Services.AddControllers();
 var configuration = builder.Configuration;
 
 // Configure DbContext
-builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DBCS")));
+builder.Services.AddDbContext<DbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DBCS")));
 
 var app = builder.Build();
 
