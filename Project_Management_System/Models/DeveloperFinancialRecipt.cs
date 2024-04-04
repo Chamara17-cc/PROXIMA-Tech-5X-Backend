@@ -9,6 +9,8 @@ namespace Project_Management_System.Models
         public int CurrentMonthWorkingHours { get; set; }
         public int PreviousMonthWorkingHours { get; set; }
         public double HourlyRate { get; set; }
+
+        public Developer Developer { get; set; }
         public int DeveloperId { get; set; }
     }
 }

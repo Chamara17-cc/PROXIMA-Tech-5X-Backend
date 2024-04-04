@@ -6,7 +6,9 @@ namespace Project_Management_System.Models
     {
         [Key]
         public int UserId { get; set; }
-
         public int InvoiceId { get; set; }
+        public Admin Admins { get; set; }
+        public Invoice Invoices { get; set; }
+
     }
 }

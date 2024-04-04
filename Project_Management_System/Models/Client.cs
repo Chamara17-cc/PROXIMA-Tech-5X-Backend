@@ -10,7 +10,7 @@ namespace Project_Management_System.Models
         public string NIC { get; set; }
         public string? ContactNumber { get; set; }
         public string? Address { get; set; }
-        public string? Email { get; set; }
+        public string? ClientEmail { get; set; }
         public string? ClientDescription { get; set; }
         public string? ProfilPhotoLink { get; set; }
         public double TotalPayment { get; set; }

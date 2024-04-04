@@ -1,4 +1,4 @@
-﻿namespace Project_Management_System.Models
+namespace Project_Management_System.Models
 {
     public class Admin
     {
@@ -8,5 +8,7 @@
 
 
         public List<Project> Projects { get; set; }
+
+        public List<ViewInvoice> ViewInvoices { get; set; }
     }
 }
