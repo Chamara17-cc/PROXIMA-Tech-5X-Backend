@@ -1,4 +1,5 @@
 global using Microsoft.EntityFrameworkCore;
+global using Project_Management_System.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 

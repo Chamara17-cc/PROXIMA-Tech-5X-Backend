@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Project_Management_System.DTOs;
+using Project_Management_System.Models;
 
 
 namespace Project_Management_System
@@ -8,6 +10,7 @@ namespace Project_Management_System
         public AutoMapper()
         {
             //Create Automappers here EX: CreateMap<AddbudgetDTO, Budget>();MAp AddBudget to Budget 
+            CreateMap<DeveloperRate, GetRateDto>();
         }
     }
 }
