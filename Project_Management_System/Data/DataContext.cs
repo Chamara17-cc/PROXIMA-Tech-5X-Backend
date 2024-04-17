@@ -11,6 +11,9 @@ namespace Project_Management_System.Data
         }
         //Add Your DbContext here Ex: public DbSet<Budget> Budgets { get; set; }
         public DbSet<DeveloperRate> DeveloperRates { get; set; }
+        public DbSet<Budget> Budgets { get; set; }
+        public DbSet<Project> Projects { get; set; }
+
 
     }
 }
