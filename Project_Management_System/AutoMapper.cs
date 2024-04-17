@@ -11,6 +11,8 @@ namespace Project_Management_System
         {
             //Create Automappers here EX: CreateMap<AddbudgetDTO, Budget>();MAp AddBudget to Budget 
             CreateMap<DeveloperRate, GetRateDto>();
+            CreateMap<AddBudgetDto, Budget>();
+            CreateMap<Budget, GetBudgetDto>();
         }
     }
 }
