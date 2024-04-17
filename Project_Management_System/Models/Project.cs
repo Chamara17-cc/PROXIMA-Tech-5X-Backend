@@ -34,6 +34,9 @@ namespace Project_Management_System.Models
         public int ProjectManagerId { get; set; }
 
         public List<DeveloperProject> DeveloperProjects { get; set; }
+        public Budget Budget { get; set; }
+
+        public List<Transaction> Transactions { get; set; }
 
     }
 }

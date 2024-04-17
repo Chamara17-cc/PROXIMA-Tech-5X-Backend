@@ -13,6 +13,7 @@ namespace Project_Management_System.Data
         public DbSet<DeveloperRate> DeveloperRates { get; set; }
         public DbSet<Budget> Budgets { get; set; }
         public DbSet<Project> Projects { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
 
 
     }
