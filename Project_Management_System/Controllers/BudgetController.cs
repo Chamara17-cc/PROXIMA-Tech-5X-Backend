@@ -17,13 +17,12 @@ namespace Project_Management_System.Controllers
     {
         private readonly DataContext _budgetdatacontext;
         private readonly IMapper _mapper;
-        private readonly DataContext _projectdatacontext;
+
 
         public BudgetController(DataContext dataContext, IMapper mapper)
         {
             _budgetdatacontext = dataContext;
             _mapper = mapper;
-            _projectdatacontext = dataContext;
         }
         public static List<Budget> budgetItems = new List<Budget>()
         {
@@ -31,9 +30,9 @@ namespace Project_Management_System.Controllers
         };
 
         [HttpGet]
-        public async Task<ActionResult<List<Project>>> GetProject()
+        public async Task<ActionResult<List<GetProjectDto>>> GetProject()
         {
-            var projectlist = await _projectdatacontext.Projects.ToListAsync();
+            var projectlist = await _budgetdatacontext.Projects.ToListAsync();
             return Ok(projectlist);
         }
 
@@ -57,7 +56,7 @@ namespace Project_Management_System.Controllers
         [HttpGet("Projects/{projectid}")]
         public async Task<ActionResult<List<GetBudgetDto>>> GetBudget(int projectid)
         {
-            var Projectid = await _projectdatacontext.Projects.FindAsync(projectid);
+            var Projectid = await _budgetdatacontext.Projects.FindAsync(projectid);
             if (Projectid == null)
             {
                 throw new Exception("Not found");

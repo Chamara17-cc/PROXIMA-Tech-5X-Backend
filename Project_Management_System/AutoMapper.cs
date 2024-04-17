@@ -13,6 +13,7 @@ namespace Project_Management_System
             CreateMap<DeveloperRate, GetRateDto>();
             CreateMap<AddBudgetDto, Budget>();
             CreateMap<Budget, GetBudgetDto>();
+            CreateMap<AddTransacDto, Transaction>();
         }
     }
 }
