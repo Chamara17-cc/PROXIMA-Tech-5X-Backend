@@ -13,6 +13,7 @@ namespace Project_Management_System.Models
         public string Description { get; set; }
         public double Income { get; set; }
         public double Expence { get; set; }
+        public DateTime Date { get; set; }
 
         [JsonIgnore]
         public Project Project { get; set; }
