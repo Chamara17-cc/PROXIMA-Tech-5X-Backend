@@ -56,6 +56,7 @@ namespace Project_Management_System.Controllers
                         Type = invoice.Type,
                         Income = newIncome,
                         Expence = 0,
+                        Date = invoice.Date,
                         ProjectId = projectId
                     };
                     _transacdatacontext.Transactions.Add(transac);
@@ -76,7 +77,8 @@ namespace Project_Management_System.Controllers
                         Type = invoice.Type,
                         Expence = newExpence,
                         Income = 0,
-                        ProjectId = projectId // Assuming ProjectId needs to be set
+                        Date = invoice.Date,
+                        ProjectId = projectId
                     };
                     _transacdatacontext.Transactions.Add(transac);
                     await _transacdatacontext.SaveChangesAsync();
@@ -92,5 +94,37 @@ namespace Project_Management_System.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+        [HttpGet("Projects/{projectId}")]
+        public async Task<ActionResult<List<GetTransacDto>>> Gettransac(int projectId)
+        {
+            try
+            {
+                var ProjectId = await _transacdatacontext.Projects.FindAsync(projectId);
+                if (ProjectId == null)
+                {
+                    throw new Exception("Project not exist");
+                }
+                var transacdetails = await _transacdatacontext.Transactions.Where(t => t.ProjectId == projectId).ToListAsync();
+                var transacdto = _mapper.Map<List<GetTransacDto>>(transacdetails);
+                return Ok(transacdto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+        [HttpDelete("Transaction/{transacId}")]
+        public async Task<ActionResult<List<Transaction>>> Deletetransac(int transacId)
+        {
+            var transactodelete = await _transacdatacontext.Transactions.FindAsync(transacId);
+            if (transactodelete == null)
+            {
+                return NotFound();
+            }
+            _transacdatacontext.Transactions.Remove(transactodelete);
+            await _transacdatacontext.SaveChangesAsync();
+            return NoContent();
+        }
+
     }
 }
