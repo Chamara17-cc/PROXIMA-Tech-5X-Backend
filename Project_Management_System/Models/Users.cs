@@ -35,5 +35,10 @@ namespace Project_Management_System.Models
         public UserCategory UserCategory { get; set; }
 
 
+        public Developer Developer { get; set; }
+        public Admin Admin { get; set; }
+        public ProjectManager ProjectManager { get; set; }
+
+
     }
 }
