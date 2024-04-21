@@ -9,6 +9,11 @@ namespace Project_Management_System.Models
 
         public int FinanceReceiptId { get; set; }
 
+        //DeveloperWorkingHoursCalculation columns
+        public int TotalDeveloperWorkingHours { get; set; }
+
+
+
         public virtual User User { get; set; }
         public List<Task> Tasks { get; set; }
 
