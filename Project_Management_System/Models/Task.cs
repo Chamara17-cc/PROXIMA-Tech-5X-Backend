@@ -26,13 +26,6 @@ namespace Project_Management_System.Models
         public int TaskStatus { get; set; }
 
 
-
-
-
-
-
-
-
         public Project Project { get; set; }
         public int ProjectId { get; set; }
 

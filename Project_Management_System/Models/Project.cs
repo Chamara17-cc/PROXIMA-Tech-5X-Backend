@@ -26,11 +26,6 @@ namespace Project_Management_System.Models
         public int TotalProjectHours { get; set; }
 
 
-
-
-
-
-
         public Client Client { get; set; }
         public int ClientId { get; set; }
 

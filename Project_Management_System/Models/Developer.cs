@@ -7,14 +7,8 @@
         //public User User { get; set; }
         public int FinanceReceiptId { get; set; }
 
-
-
         //DeveloperWorkingHoursCalculation columns
         public int TotalDeveloperWorkingHours { get; set; }
-
-
-
-
 
         public List<Task> Tasks { get; set; }
 
