@@ -22,5 +22,8 @@ namespace Project_Management_System.Models
         public Developer Developer { get; set; }
         public int DeveloperId { get; set; }
 
+        public List<FileResource> FileResources { get; set; }
+
+
     }
 }

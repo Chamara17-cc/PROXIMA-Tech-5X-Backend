@@ -13,6 +13,7 @@ namespace Project_Management_System.Models
         public DateTime P_StartDate { get; set; }
         public DateTime P_DueDate { get; set; }
         public int? Duration { get; set; }
+
         public string? ProjectStatus { get; set; }
         public string? TeamName { get; set; }
         public string? TimeLine { get; set; }
@@ -34,6 +35,9 @@ namespace Project_Management_System.Models
         public int ProjectManagerId { get; set; }
 
         public List<DeveloperProject> DeveloperProjects { get; set; }
+        public List<FileResource> FileResources { get; set; }
+
+
         public Budget Budget { get; set; }
 
         public List<Transaction> Transactions { get; set; }
