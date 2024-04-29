@@ -29,7 +29,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("AdminId");
 
-                    b.ToTable("Admins");
+                    b.ToTable("Admins", (string)null);
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.Budget", b =>
@@ -76,7 +76,7 @@ namespace Project_Management_System.Migrations
                     b.HasIndex("ProjectId")
                         .IsUnique();
 
-                    b.ToTable("Budgets");
+                    b.ToTable("Budgets", (string)null);
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.Client", b =>
@@ -123,7 +123,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("ClientId");
 
-                    b.ToTable("Clients");
+                    b.ToTable("Clients", (string)null);
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.Developer", b =>
@@ -139,7 +139,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("DeveloperId");
 
-                    b.ToTable("Developers");
+                    b.ToTable("Developers", (string)null);
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.DeveloperFinancialRecipt", b =>
@@ -164,7 +164,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("ReceiptId");
 
-                    b.ToTable("DeveloperFinancialRecipts");
+                    b.ToTable("DeveloperFinancialRecipts", (string)null);
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.DeveloperProject", b =>
@@ -187,7 +187,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("DeveloperProjects");
+                    b.ToTable("DeveloperProjects", (string)null);
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.DeveloperRate", b =>
@@ -206,7 +206,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("Rateid");
 
-                    b.ToTable("DeveloperRates");
+                    b.ToTable("DeveloperRates", (string)null);
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.FileResource", b =>
@@ -244,7 +244,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("FileResources");
+                    b.ToTable("FileResources", (string)null);
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.Invoice", b =>
@@ -280,7 +280,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("InvoiceId");
 
-                    b.ToTable("Invoices");
+                    b.ToTable("Invoices", (string)null);
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.JobRole", b =>
@@ -297,7 +297,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("JobRoleId");
 
-                    b.ToTable("JobRoles");
+                    b.ToTable("JobRoles", (string)null);
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.Project", b =>
@@ -368,7 +368,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasIndex("ProjectManagerId");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Projects", (string)null);
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.ProjectManager", b =>
@@ -378,7 +378,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("ProjectManagerId");
 
-                    b.ToTable("ProjectManagers");
+                    b.ToTable("ProjectManagers", (string)null);
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.Task", b =>
@@ -442,7 +442,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("Tasks");
+                    b.ToTable("Tasks", (string)null);
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.Transaction", b =>
@@ -480,7 +480,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("Transactions");
+                    b.ToTable("Transactions", (string)null);
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.User", b =>
@@ -555,7 +555,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasIndex("UserCategoryId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.UserCategory", b =>
@@ -572,7 +572,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("UserCategoryId");
 
-                    b.ToTable("UsersCategories");
+                    b.ToTable("UsersCategories", (string)null);
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.ViewInvoice", b =>
@@ -588,7 +588,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("ViewInvoices");
+                    b.ToTable("ViewInvoices", (string)null);
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.ViewReport", b =>
@@ -604,7 +604,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("BudgetId");
 
-                    b.ToTable("ViewReports");
+                    b.ToTable("ViewReports", (string)null);
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.ViewResource", b =>
@@ -623,7 +623,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ViewResources");
+                    b.ToTable("ViewResources", (string)null);
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.Admin", b =>
@@ -631,7 +631,7 @@ namespace Project_Management_System.Migrations
                     b.HasOne("Project_Management_System.Models.User", "User")
                         .WithOne("Admin")
                         .HasForeignKey("Project_Management_System.Models.Admin", "AdminId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -653,7 +653,7 @@ namespace Project_Management_System.Migrations
                     b.HasOne("Project_Management_System.Models.User", "User")
                         .WithOne("Developer")
                         .HasForeignKey("Project_Management_System.Models.Developer", "DeveloperId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -689,7 +689,7 @@ namespace Project_Management_System.Migrations
                     b.HasOne("Project_Management_System.Models.Task", "Task")
                         .WithMany("FileResources")
                         .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Project");
@@ -702,7 +702,7 @@ namespace Project_Management_System.Migrations
                     b.HasOne("Project_Management_System.Models.Admin", "Admin")
                         .WithMany("Projects")
                         .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Project_Management_System.Models.Client", "Client")
@@ -714,7 +714,7 @@ namespace Project_Management_System.Migrations
                     b.HasOne("Project_Management_System.Models.ProjectManager", "ProjectManager")
                         .WithMany("Projects")
                         .HasForeignKey("ProjectManagerId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Admin");
@@ -729,7 +729,7 @@ namespace Project_Management_System.Migrations
                     b.HasOne("Project_Management_System.Models.User", "User")
                         .WithOne("ProjectManager")
                         .HasForeignKey("Project_Management_System.Models.ProjectManager", "ProjectManagerId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
