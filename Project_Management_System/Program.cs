@@ -1,6 +1,8 @@
 global using Microsoft.EntityFrameworkCore;
 global using Project_Management_System.DTOs;
 using Project_Management_System.Data;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +27,20 @@ builder.Services.AddCors(p => p.AddPolicy("corspolicy", build =>
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddControllers();
 
+//Add authentication and JwtBearer 
+
+builder.Services.AddAuthentication().AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        ValidateAudience = false,
+        ValidateIssuer = false,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                builder.Configuration.GetSection("AppSettings:Token").Value!))
+    };
+});
+
 // Access configuration
 var configuration = builder.Configuration;
 
@@ -45,6 +61,8 @@ app.UseHttpsRedirection();
 app.UseCors("ReactJSDomain");
 
 app.UseCors("corspolicy");
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
