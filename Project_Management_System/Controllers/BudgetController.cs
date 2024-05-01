@@ -33,58 +33,96 @@ namespace Project_Management_System.Controllers
         public async Task<ActionResult<List<GetProjectDto>>> GetProject()
         {
             var projectlist = await _budgetdatacontext.Projects.ToListAsync();
-            return Ok(projectlist);
+            var projectDtos= _mapper.Map<List<GetProjectDto>>(projectlist);
+            return Ok(projectDtos);
         }
 
         [HttpPost("Projects/{projectid}")]
-        public async Task<ActionResult<List<GetBudgetDto>>> AddBudget(AddBudgetDto budgelist, int projectid)
+        public async Task<ActionResult<List<Budget>>> AddBudget(AddBudgetDto budgelist, int projectid)
         {
-            var project = await _budgetdatacontext.Projects.FindAsync(projectid);
-            if (project == null)
+            try
             {
-                return NotFound("No any projects");
+                var project = await _budgetdatacontext.Projects.FindAsync(projectid);
+                if (project == null)
+                {
+                    return NotFound("No projects found with the provided project ID");
+                }
+
+                var budgetItem = _mapper.Map<Budget>(budgelist);
+                budgetItem.ProjectId = projectid;
+
+                _budgetdatacontext.Budgets.Add(budgetItem);
+                await _budgetdatacontext.SaveChangesAsync();
+
+                var budgetItems = await _budgetdatacontext.Budgets.ToListAsync();
+                var addedBudgetDTOs = _mapper.Map<List<GetBudgetDto>>(budgetItems);
+
+                return Ok(addedBudgetDTOs);
             }
-            var budgetItem = _mapper.Map<Budget>(budgelist);
-            budgetItem.ProjectId = projectid;
-            _budgetdatacontext.Budgets.Add(budgetItem);
-            await _budgetdatacontext.SaveChangesAsync();
-            var budgetItems = await _budgetdatacontext.Budgets.ToListAsync();
-            var addedBudgetDTOs = _mapper.Map<List<GetBudgetDto>>(budgetItems);
-            return Ok(addedBudgetDTOs);
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while processing the request.");
+            }
         }
+
 
         [HttpGet("Projects/{projectid}")]
         public async Task<ActionResult<List<GetBudgetDto>>> GetBudget(int projectid)
         {
-            var Projectid = await _budgetdatacontext.Projects.FindAsync(projectid);
-            if (Projectid == null)
+            try
             {
-                throw new Exception("Not found");
+                var Projectid = await _budgetdatacontext.Projects.FindAsync(projectid);
+                if (Projectid == null)
+                {
+                    return NotFound();
+                }
+                var budgetdata = await _budgetdatacontext.Budgets.Where(b => b.ProjectId == projectid).ToListAsync();
+                var getbudgetlist = _mapper.Map<List<GetBudgetDto>>(budgetdata);
+                return Ok(getbudgetlist);
             }
-            var budgetdata = await _budgetdatacontext.Budgets.Where(b => b.ProjectId == projectid).ToListAsync();
-            var getbudgetlist = _mapper.Map<List<GetBudgetDto>>(budgetdata);
-            return Ok(getbudgetlist);
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while processing the request.");
+            }
         }
+            
         [HttpPut("Projects/{projectid}")]
         public async Task<ActionResult<List<UpdateBudgetDto>>> UpdateBudget(int projectid, [FromBody] UpdateBudgetDto updatebudget)
         {
             try
             {
-
                 var excistingbudget = await _budgetdatacontext.Budgets.FirstOrDefaultAsync(p => p.ProjectId == projectid);
                 if (excistingbudget == null)
                 {
                     throw new Exception("Budget Not Created");
                 }
-                excistingbudget.Objectives = updatebudget.Objectives;
-                excistingbudget.SelectionprocessCost = updatebudget.SelectionprocessCost;
-                excistingbudget.LicenseCost = updatebudget.LicenseCost;
-                excistingbudget.ServersCost = updatebudget.ServersCost;
-                excistingbudget.HardwareCost = updatebudget.HardwareCost;
-                excistingbudget.ConnectionCost = updatebudget.ConnectionCost;
-                excistingbudget.DeveloperCost = updatebudget.DeveloperCost;
-                excistingbudget.OtherExpenses = updatebudget.OtherExpenses;
-                excistingbudget.TotalCost = updatebudget.TotalCost;
+
+                if (updatebudget.Objectives != null)
+                    excistingbudget.Objectives = updatebudget.Objectives;
+
+                if (updatebudget.SelectionprocessCost != 0)
+                    excistingbudget.SelectionprocessCost = updatebudget.SelectionprocessCost;
+
+                if (updatebudget.LicenseCost != 0)
+                    excistingbudget.LicenseCost = updatebudget.LicenseCost;
+
+                if (updatebudget.ServersCost != 0)
+                    excistingbudget.ServersCost = updatebudget.ServersCost;
+
+                if (updatebudget.HardwareCost != 0)
+                    excistingbudget.HardwareCost = updatebudget.HardwareCost;
+
+                if (updatebudget.ConnectionCost != 0)
+                    excistingbudget.ConnectionCost = updatebudget.ConnectionCost;
+
+                if (updatebudget.DeveloperCost != 0)
+                    excistingbudget.DeveloperCost = updatebudget.DeveloperCost;
+
+                if (updatebudget.OtherExpenses != 0)
+                    excistingbudget.OtherExpenses = updatebudget.OtherExpenses;
+
+                if (updatebudget.TotalCost != 0)
+                    excistingbudget.TotalCost = updatebudget.TotalCost;
 
                 _budgetdatacontext.Budgets.Update(excistingbudget);
                 await _budgetdatacontext.SaveChangesAsync();
@@ -92,10 +130,10 @@ namespace Project_Management_System.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, "An error occurred while processing the request.");
             }
-
-
         }
+
+
     }
 }
