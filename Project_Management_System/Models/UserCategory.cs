@@ -6,10 +6,8 @@ namespace Project_Management_System.Models
     {
 
         [Key]
-        public string CategoryId { get; set; }
+        public int UserCategoryId { get; set; }
         [Required]
-        public string CategoryName { get; set; }
-
-
+        public string UserCategoryType { get; set; }
     }
 }

@@ -16,11 +16,26 @@ namespace Project_Management_System.Models
         public int Priority { get; set; }
         //     public int UserId { get; set; }
 
+
+
+        //TaskTimeCalculation columns
+        public DateTime TaskStartTime { get; set; }
+        public DateTime TaskPauseTime { get; set; }
+        public DateTime TaskCompleteTime { get; set; }
+        public int TotalTaskTimeDuration { get; set; }
+        public int TaskStatus { get; set; }
+
+
+
+
         public Project Project { get; set; }
         public int ProjectId { get; set; }
 
         public Developer Developer { get; set; }
         public int DeveloperId { get; set; }
+
+        public List<FileResource> FileResources { get; set; }
+
 
     }
 }

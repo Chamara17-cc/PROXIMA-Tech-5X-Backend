@@ -1,15 +1,23 @@
-﻿namespace Project_Management_System.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Project_Management_System.Models
 {
     public class Developer
     {
-        public int Id { get; set; }
+        [ForeignKey("User")]
         public int DeveloperId { get; set; }
-        //public User User { get; set; }
+
         public int FinanceReceiptId { get; set; }
 
+        //DeveloperWorkingHoursCalculation columns
+        public int TotalDeveloperWorkingHours { get; set; }
+
+
+
+        public virtual User User { get; set; }
         public List<Task> Tasks { get; set; }
 
-
         public List<DeveloperProject> DeveloperProjects { get; set; }
+
     }
 }

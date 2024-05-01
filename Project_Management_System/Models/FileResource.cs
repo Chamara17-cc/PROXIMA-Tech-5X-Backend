@@ -10,7 +10,13 @@ namespace Project_Management_System.Models
         public string FileType { get; set; }
         public string LocalStoragePath { get; set; }
         public DateTime UpdatedDate { get; set; }
-        //   public int ProjectId { get; set; }
+
+
+        public Project Project { get; set; }
+        public int ProjectId { get; set; }
+
+        public Task Task { get; set; }
+        public int TaskId { get; set; }
 
 
 
