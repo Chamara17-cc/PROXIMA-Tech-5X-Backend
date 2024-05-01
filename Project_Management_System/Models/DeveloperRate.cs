@@ -6,7 +6,10 @@ namespace Project_Management_System.Models
     {
         [Key]
         public int Rateid { get; set; }
+
         public DateTime UpdatedDate { get; set; }
+
+        [Required]
         public double CurrentRate { get; set; }
     }
 }

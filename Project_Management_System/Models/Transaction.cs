@@ -8,8 +8,14 @@ namespace Project_Management_System.Models
 
         [Key]
         public int TransacId { get; set; }
+
+        
         public double Value { get; set; }
+
+        
         public string Type { get; set; }
+
+        
         public string Description { get; set; }
         public double Income { get; set; }
         public double Expence { get; set; }
@@ -18,5 +24,6 @@ namespace Project_Management_System.Models
         [JsonIgnore]
         public Project Project { get; set; }
         public int ProjectId { get; set; }
+
     }
 }

@@ -15,6 +15,7 @@ namespace Project_Management_System
             CreateMap<Budget, GetBudgetDto>();
             CreateMap<AddTransacDto, Transaction>();
             CreateMap<Transaction, GetTransacDto>();
+            CreateMap<Project, GetProjectDto>();
         }
     }
 }
