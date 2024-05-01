@@ -23,7 +23,7 @@ namespace Project_Management_System.Models
         public string NIC { get; set; }
         public DateTime DOB { get; set; }
         public string Gender { get; set; }
-        public string ProfilePictureLink { get; set; }
+       // public string ProfilePictureLink { get; set; }
         public DateTime JoinDate { get; set; } = DateTime.Now;
         public DateTime LastLoginDate { get; set; } = DateTime.Now;
         public bool IsActive { get; set; } = true;
