@@ -51,10 +51,10 @@ namespace Project_Management_System.Controllers
          }*/
 
         [HttpGet]
-        public async Task<ActionResult<List<GetRateDto>>> GetRate()
+        public async Task<ActionResult<GetRateDto>> GetRate()
         {
             var currnetRate = await _datacontext.DeveloperRates.OrderByDescending(x => x.Rateid).FirstOrDefaultAsync();
-            var current_devep__rate = _imapper.Map<List<GetRateDto>>(currnetRate);
+            var current_devep__rate = _imapper.Map<GetRateDto>(currnetRate);
 
             if (currnetRate == null)
             {
