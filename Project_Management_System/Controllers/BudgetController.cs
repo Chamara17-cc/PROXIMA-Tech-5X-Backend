@@ -100,29 +100,50 @@ namespace Project_Management_System.Controllers
                 if (updatebudget.Objectives != null)
                     excistingbudget.Objectives = updatebudget.Objectives;
 
-                if (updatebudget.SelectionprocessCost != 0)
+                if (updatebudget.SelectionprocessCost != 0) 
+                {
                     excistingbudget.SelectionprocessCost = updatebudget.SelectionprocessCost;
 
-                if (updatebudget.LicenseCost != 0)
+                }
+                    
+
+                if (updatebudget.LicenseCost != 0) 
+                {
                     excistingbudget.LicenseCost = updatebudget.LicenseCost;
+                }
+                   
 
                 if (updatebudget.ServersCost != 0)
+                {
                     excistingbudget.ServersCost = updatebudget.ServersCost;
+                }
+                   
 
                 if (updatebudget.HardwareCost != 0)
+                {
                     excistingbudget.HardwareCost = updatebudget.HardwareCost;
+                }
+                 
 
                 if (updatebudget.ConnectionCost != 0)
+                {
                     excistingbudget.ConnectionCost = updatebudget.ConnectionCost;
+                }
+                   
 
                 if (updatebudget.DeveloperCost != 0)
+                {
                     excistingbudget.DeveloperCost = updatebudget.DeveloperCost;
+                }
+                   
 
                 if (updatebudget.OtherExpenses != 0)
+                {
                     excistingbudget.OtherExpenses = updatebudget.OtherExpenses;
+                }
 
-                if (updatebudget.TotalCost != 0)
-                    excistingbudget.TotalCost = updatebudget.TotalCost;
+                excistingbudget.TotalCost = excistingbudget.SelectionprocessCost + excistingbudget.LicenseCost + excistingbudget.ServersCost + excistingbudget.HardwareCost
+                   + excistingbudget.ConnectionCost + excistingbudget.DeveloperCost + excistingbudget.OtherExpenses;
 
                 _budgetdatacontext.Budgets.Update(excistingbudget);
                 await _budgetdatacontext.SaveChangesAsync();

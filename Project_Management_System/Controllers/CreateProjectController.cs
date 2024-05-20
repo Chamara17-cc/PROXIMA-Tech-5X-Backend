@@ -19,7 +19,7 @@ namespace Project_Management_System.Controllers
         [HttpPost]      //  https://localhost:44319/api/CreateProject
         public async Task<ActionResult<List<Project>>> Create(ProjectDto request)
         {
-            int loggedAdminId = 2;
+            int loggedAdminId = 3;
 
             var client = await _context.Clients.FindAsync(request.ClientId);
             if (client == null)
