@@ -16,10 +16,14 @@ namespace Project_Management_System.Controllers
             this._context = _context;
         }
 
-        [HttpPost]      //  https://localhost:44319/api/CreateProject
+        [HttpPost]      //  https://localhost:44339/api/CreateProject
         public async Task<ActionResult<List<Project>>> Create(ProjectDto request)
         {
-            int loggedAdminId = 3;
+
+            int loggedAdminId = 1;
+
+            
+
 
             var client = await _context.Clients.FindAsync(request.ClientId);
             if (client == null)
@@ -48,6 +52,9 @@ namespace Project_Management_System.Controllers
                 TeamName = request.TeamName,
                 TimeLine = request.TimeLine,
                 Objectives = request.Objectives,
+
+                ProjectStatus = "New",
+
                 Client = client,
                 ProjectManager = pManager,
                 AdminId = loggedAdminId

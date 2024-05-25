@@ -417,7 +417,7 @@ namespace Project_Management_System.Migrations
                     LocalStoragePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ProjectId = table.Column<int>(type: "int", nullable: false),
-                    TaskId = table.Column<int>(type: "int", nullable: false)
+                    TaskId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {

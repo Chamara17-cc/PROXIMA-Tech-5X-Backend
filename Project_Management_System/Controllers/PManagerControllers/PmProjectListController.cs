@@ -3,15 +3,15 @@ using Microsoft.AspNetCore.Mvc;
 using Project_Management_System.Data;
 using Project_Management_System.Models;
 
-namespace Project_Management_System.Controllers
+namespace Project_Management_System.Controllers.PManagerControllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ViewProjectListController : ControllerBase
+    public class PmProjectListController : ControllerBase
     {
         public readonly DataContext _context;
 
-        public ViewProjectListController(DataContext _context)
+        public PmProjectListController(DataContext _context)
         {
             this._context = _context;
         }
@@ -20,24 +20,34 @@ namespace Project_Management_System.Controllers
         {
             public int proId { get; set; }
             public string projectName { get; set; }
-            public string projectStatus { get; set; }
+            public string projectStatus {  get; set; }
+
 
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Project>>> GetList()
+        public async Task<ActionResult<IEnumerable<Project>>> GetList(int id)
         {
-            var projects = await _context.Projects
+            try
+            {
+                var projects = await _context.Projects
+                .Where(e => e.ProjectManagerId == id)
                 .Select(e => new ViewProjctListDTO
                 {
                     proId = e.ProjectId,
                     projectName = e.ProjectName,
                     projectStatus = e.ProjectStatus
-                })
-                .ToListAsync();
 
-            return Ok(projects);
+                }).ToListAsync();
+
+                return Ok(projects);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
         }
-
     }
 }
