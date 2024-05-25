@@ -1,130 +1,337 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Project_Management_System.Data;
-using Project_Management_System.Models;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using Project_Management_System.Data;
+using Project_Management_System.Models;
+using System.Threading.Tasks;
+using System.Diagnostics.Eventing.Reader;
 
-namespace Project_Management_System.Controllers
+
+[Route("api/[controller]")]
+[ApiController]
+public class TransactionController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class TransactionController : ControllerBase
+    private readonly DataContext _transacdatacontext;
+    private readonly IMapper _mapper;
+
+    public TransactionController(DataContext datacontext, IMapper mapper)
     {
-        private readonly DataContext _transacdatacontext;
-        private readonly IMapper _mapper;
+        _transacdatacontext = datacontext;
+        _mapper = mapper;
+    }
 
-        public TransactionController(DataContext datacontext, IMapper mapper)
+    [HttpGet]
+    public async Task<ActionResult<List<GetProjectDto>>> GetProject()
+    {
+        var projectlist = await _transacdatacontext.Projects.ToListAsync();
+        return Ok(projectlist);
+    }
+
+    [HttpPost("Project/{projectId}")]
+    public async Task<ActionResult<Transaction>> AddTransaction(AddTransacDto invoice, int projectId)
+    {
+        try
         {
-            _transacdatacontext = datacontext;
-            _mapper = mapper;
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<List<GetProjectDto>>> GetProject()
-        {
-            var projectlist = await _transacdatacontext.Projects.ToListAsync();
-            return Ok(projectlist);
-        }
-
-        [HttpPost("Project/{projectId}")]
-        public async Task<ActionResult<List<Transaction>>> AddTransactions(AddTransacDto invoice, int projectId)
-        {
-            try
+            var project = await _transacdatacontext.Projects.FindAsync(projectId);
+            if (project == null)
             {
-                var i_project = await _transacdatacontext.Projects.FindAsync(projectId);
-                if (i_project == null)
-                {
-                    return NotFound("Project not found");
-                }
+                return NotFound("Project not found");
+            }
 
-                var transactype = invoice.Type;
-                if (transactype == "Income")
-                {
-                    var currentIncome = await _transacdatacontext.Transactions    //Calculate current total income
-                        .Where(i => i.ProjectId == projectId && i.Type == "Income")
-                        .SumAsync(i => i.Value);
+            var transactionType = invoice.Type;
+            Transaction transaction = new Transaction
+            {
+                Value = invoice.Value,
+                Description = invoice.Description,
+                Type = invoice.Type,
+                Date = invoice.Date,
+                ProjectId = projectId
+            };
 
-                    var newIncome = currentIncome + invoice.Value;
-                    var transac = new Transaction //Add values to new transaction object
-                    {
-                        Value = invoice.Value,
-                        Description = invoice.Description,
-                        Type = invoice.Type,
-                        Income = newIncome,
-                        Expence = 0,
-                        Date = invoice.Date,
-                        ProjectId = projectId
-                    };
-                    _transacdatacontext.Transactions.Add(transac);
-                    await _transacdatacontext.SaveChangesAsync();
-                    return Ok(transac);
-                }
-                else if (transactype == "Expence")
-                {
-                    var currentExpence = await _transacdatacontext.Transactions
-                        .Where(i => i.ProjectId == projectId && i.Type == "Expence")  //Calculate current total expence
-                        .SumAsync(i => i.Value);
+            if (transactionType == "Income")
+            {
+                transaction.Income = invoice.Value;
+                transaction.Expence = 0;
+            }
+            else if (transactionType == "Expence")
+            {
+                transaction.Expence = invoice.Value;
+                transaction.Income = 0;
+            }
+            else
+            {
+                return BadRequest("Invalid transaction type");
+            }
 
-                    var newExpence = currentExpence + invoice.Value;
-                    var transac = new Transaction
-                    {
-                        Value = invoice.Value,
-                        Description = invoice.Description,
-                        Type = invoice.Type,
-                        Expence = newExpence,
-                        Income = 0,
-                        Date = invoice.Date,
-                        ProjectId = projectId
-                    };
-                    _transacdatacontext.Transactions.Add(transac);
-                    await _transacdatacontext.SaveChangesAsync();
-                    return Ok(transac);
-                }
-                else
-                {
-                    return BadRequest("Invalid transaction type");
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-        }
-        [HttpGet("Projects/{projectId}")]
-        public async Task<ActionResult<List<GetTransacDto>>> Gettransac(int projectId)
-        {
-            try
-            {
-                var ProjectId = await _transacdatacontext.Projects.FindAsync(projectId);
-                if (ProjectId == null)
-                {
-                    throw new Exception("Project not exist");
-                }
-                var transacdetails = await _transacdatacontext.Transactions.Where(t => t.ProjectId == projectId).ToListAsync();
-                var transacdto = _mapper.Map<List<GetTransacDto>>(transacdetails);
-                return Ok(transacdto);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-        }
-        [HttpDelete("Transaction/{transacId}")]
-        public async Task<ActionResult<List<Transaction>>> Deletetransac(int transacId)
-        {
-            var transactodelete = await _transacdatacontext.Transactions.FindAsync(transacId);
-            if (transactodelete == null)
-            {
-                return NotFound();
-            }
-            _transacdatacontext.Transactions.Remove(transactodelete);
+            _transacdatacontext.Transactions.Add(transaction);
             await _transacdatacontext.SaveChangesAsync();
-            return NoContent();
+
+            return Ok(transaction);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+        }
+    }
+
+    [HttpGet("Projects/{projectId}")]
+    public async Task<ActionResult<List<GetTransacDto>>> GetTransactions(int projectId)
+    {
+        try
+        {
+            var project = await _transacdatacontext.Projects.FindAsync(projectId);
+            if (project == null)
+            {
+                return NotFound("Project does not exist");
+            }
+
+            var transactions = await _transacdatacontext.Transactions
+                .Where(t => t.ProjectId == projectId)
+                .ToListAsync();
+
+            var transactionDtos = _mapper.Map<List<GetTransacDto>>(transactions);
+            return Ok(transactionDtos);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+        }
+    }
+
+    [HttpDelete("Transaction/{transacId}/{projectId}")]
+    public async Task<ActionResult> DeleteTransaction(int transacId, int projectId)
+    {
+        var transaction = await _transacdatacontext.Transactions.FirstOrDefaultAsync(p => p.TransacId == transacId);
+        if (transaction == null)
+        {
+            return NotFound("Transaction not found");
         }
 
+        _transacdatacontext.Transactions.Remove(transaction);
+        await _transacdatacontext.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    [HttpPut("Transaction/{transacId}")]
+    public async Task<ActionResult<Transaction>> UpdateTransaction(double value, string type, string description, int transacId, DateTime? date)
+    {
+        try
+        {
+            var existingTransaction = await _transacdatacontext.Transactions.FindAsync(transacId);
+            if (existingTransaction == null)
+            {
+                return NotFound("Transaction not found");
+            }
+
+            if (!string.IsNullOrEmpty(description))
+            {
+                existingTransaction.Description = description;
+            }
+
+            if (date.HasValue)
+            {
+                existingTransaction.Date = date.Value;
+            }
+
+            /*         if (value != existingTransaction.Value && value != 0)
+                     {
+                         var difference = value - existingTransaction.Value;
+                         if (existingTransaction.Type == type)
+                         {
+                             if (type == "Income")
+                             {
+                                 await UpdateIncome(difference, transacId);
+                             }
+                             else if (type == "Expence")
+                             {
+                                 await UpdateExpense(difference, transacId);
+                             }
+                         }
+                         else if (existingTransaction.Type != type)
+                         {
+                             await UpdateIncomeOrExpense(value, type, transacId);
+                         }
+                         existingTransaction.Value = value;
+                     }
+                     else if (value == existingTransaction.Value && value != 0)
+                     {
+                         if (!string.IsNullOrEmpty(type) && existingTransaction.Type != type)
+                         {
+                             await UpdateIncomeOrExpense(existingTransaction.Value, type, transacId);
+                             existingTransaction.Type = type;
+                         }
+                     }*/
+
+            if (existingTransaction.Type != type)
+
+            {
+                if (type == "Income")
+                {
+                    existingTransaction.Expence = 0;
+                    existingTransaction.Income = value;
+                    existingTransaction.Value = value;
+                }
+                else if (type == "Expence")
+                {
+                    existingTransaction.Income = 0;
+                    existingTransaction.Expence = value;
+                    existingTransaction.Value = value;
+                }
+                existingTransaction.Type = type;
+            }
+            else if (existingTransaction.Type == type)
+            {
+                if (existingTransaction.Type == "Income")
+                {
+                    existingTransaction.Income = value;
+                    existingTransaction.Value = value;
+                }
+                else if (existingTransaction.Type == "Expence")
+                {
+                    existingTransaction.Expence = value;
+                    existingTransaction.Value = value;
+                }
+            }
+
+            _transacdatacontext.Entry(existingTransaction).State = EntityState.Modified;
+            await _transacdatacontext.SaveChangesAsync();
+
+            return Ok(existingTransaction);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, "An error occurred while processing the request.");
+        }
     }
 }
+
+
+
+
+
+
+
+
+
+
+/*var excistingtransac = await _transacdatacontext.Transactions.FirstOrDefaultAsync(t => t.TransacId == transacId);
+if (excistingtransac == null)
+{
+    return BadRequest();
+}
+var currentIncome = await _transacdatacontext.Transactions
+.Where(i => i.TransacId == transacId && i.Type == "Income")
+.SumAsync(i => i.Value);
+var currentExpence = await _transacdatacontext.Transactions
+.Where(i => i.TransacId == transacId && i.Type == "Expence")
+.SumAsync(i => i.Value);
+
+
+// excistingtransac.Description = updatetransac.Description != null && updatetransac.Type == null && updatetransac.Value == 0 ? updatetransac.Description : excistingtransac.Description;
+
+if (updatetransac.Description == null && updatetransac.Value != 0 && updatetransac.Type != null) //value and type both are changed ans dis not changed
+{
+
+    if (updatetransac.Type == "Income")
+    {
+        excistingtransac.Expence = currentExpence - excistingtransac.Value;
+        excistingtransac.Income = currentIncome + updatetransac.Value + 3000;
+    }
+    else if (updatetransac.Type == "Expence")
+    {
+        excistingtransac.Income = currentIncome - excistingtransac.Value;
+        excistingtransac.Expence = currentExpence + updatetransac.Value + 3000;
+    }
+    excistingtransac.Type = updatetransac.Type;
+    excistingtransac.Value = updatetransac.Value;
+    _transacdatacontext.Transactions.Update(excistingtransac);
+    await _transacdatacontext.SaveChangesAsync();
+
+
+}
+return Ok("Updated");
+ else if (updatetransac.Description != null && updatetransac.Value != 0 && updatetransac.Type != null) //value and type and dsiscripton are changed
+  {
+      excistingtransac.Description = updatetransac.Description;
+      excistingtransac.Value = updatetransac.Value;
+      excistingtransac.Type = updatetransac.Type;
+
+
+      if (updatetransac.Type == "Income")
+      {
+
+          excistingtransac.Income = currentIncome + excistingtransac.Value;
+      }
+      else if (updatetransac.Type == "Expence")
+      {
+
+          excistingtransac.Expence = currentExpence + excistingtransac.Value;
+      }
+      return Ok(excistingtransac);
+  }
+else  if (updatetransac.Description == null && updatetransac.Value != 0 && updatetransac.Type == null)  //only value changed not type and discription not chaged
+  {
+      excistingtransac.Description = excistingtransac.Description;
+      excistingtransac.Type = excistingtransac.Type;
+      var updatedval = updatetransac.Value - excistingtransac.Value; //updated value calculate
+      excistingtransac.Value = updatetransac.Value;
+      if (excistingtransac.Type == "Income")
+      {
+
+          excistingtransac.Income = currentIncome + updatedval;
+      }
+      else if (excistingtransac.Type == "Expence")
+      {
+
+          excistingtransac.Expence = currentExpence + updatedval;
+      }
+
+  }
+  else if (updatetransac.Description == null && updatetransac.Value == 0 && updatetransac.Type != null && excistingtransac.Type != updatetransac.Type) //value and dis not changed and only type change
+  {
+      excistingtransac.Description = excistingtransac.Description;
+      excistingtransac.Value = excistingtransac.Value;
+      if (excistingtransac.Type == "Income" && updatetransac.Type == "Expence")
+      {
+          excistingtransac.Income = currentIncome - excistingtransac.Value;
+          excistingtransac.Expence = currentExpence + excistingtransac.Value;
+      }
+      else if (excistingtransac.Type == "Expence" && updatetransac.Type == "Income")
+      {
+          excistingtransac.Expence = currentExpence - excistingtransac.Value;
+          excistingtransac.Income = currentIncome + excistingtransac.Value;
+      }
+      return Ok(excistingtransac);
+  }
+  else if (updatetransac.Description != null && updatetransac.Value == 0 && updatetransac.Type != null && excistingtransac.Type != updatetransac.Type) //value not changed and only and discription type change
+  {
+      excistingtransac.Description = updatetransac.Description;
+      excistingtransac.Value = excistingtransac.Value;
+      if (excistingtransac.Type == "Income" && updatetransac.Type == "Expence")
+      {
+          excistingtransac.Income = currentIncome - excistingtransac.Value;
+          excistingtransac.Expence = currentExpence + excistingtransac.Value;
+      }
+      else if (excistingtransac.Type == "Expence" && updatetransac.Type == "Income")
+      {
+          excistingtransac.Expence = currentExpence - excistingtransac.Value;
+          excistingtransac.Income = currentIncome + excistingtransac.Value;
+      }
+      return Ok(excistingtransac);
+  }
+  else  //any not selected
+  {
+      excistingtransac.Value = excistingtransac.Value;
+      excistingtransac.Type = excistingtransac.Type;
+      excistingtransac.Description = excistingtransac.Description;
+      return Ok(excistingtransac);
+  }
+
+   _transacdatacontext.Transactions.Update(excistingtransac);
+   await _transacdatacontext.SaveChangesAsync();
+   return Ok(excistingtransac);*/

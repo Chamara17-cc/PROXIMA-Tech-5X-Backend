@@ -7,6 +7,8 @@ namespace Project_Management_System.Models
     {
         [Key]
         public int BudgetId { get; set; }
+
+        [Required]
         public string Objectives { get; set; } = string.Empty;
         public double SelectionprocessCost { get; set; }
         public double LicenseCost { get; set; }
@@ -15,6 +17,8 @@ namespace Project_Management_System.Models
         public double ConnectionCost { get; set; }
         public double DeveloperCost { get; set; }
         public double OtherExpenses { get; set; }
+
+        [Required]
         public double TotalCost { get; set; }
 
 
