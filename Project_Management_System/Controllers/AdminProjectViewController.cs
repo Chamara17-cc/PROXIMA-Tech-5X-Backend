@@ -57,7 +57,8 @@ namespace Project_Management_System.Controllers
                     TimeLine = e.TimeLine,
                     Objectives = e.Objectives,
                     ClientId = e.ClientId,
-
+                    ProjectManagerFName = e.ProjectManager.User.FirstName,
+                    ProjectManagerLName = e.ProjectManager.User.LastName,
                     ProjectManagerId = e.ProjectManagerId
                 }).ToListAsync();
 

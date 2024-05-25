@@ -17,15 +17,21 @@ namespace Project_Management_System.Controllers
 
         }
 
+        public class CheckAddedDevDTO
+        {
+            public int DeveloperId { get; set; }
+        }
+
         [HttpGet("{para}")]
         public async Task<ActionResult<IEnumerable<DeveloperProject>>> CheckDev(int para)
         {
             var addedDev = await _context.DeveloperProjects
                 .Where(x => x.ProjectId == para)
-                .Select(x => new DeveloperProjectDTO
+                .Select(x => new CheckAddedDevDTO
                 {
-                    DeveloperId = x.DeveloperId,
-                    ProjectId = x.ProjectId
+                    
+                    DeveloperId = x.DeveloperId
+
                 }).ToListAsync();
 
             return Ok(addedDev);
