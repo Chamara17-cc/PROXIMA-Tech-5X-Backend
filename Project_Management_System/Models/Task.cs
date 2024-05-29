@@ -36,6 +36,8 @@ namespace Project_Management_System.Models
 
         public List<FileResource> FileResources { get; set; }
 
+        public List<TaskTime> TaskTimes { get; set; }
+
 
     }
 }
