@@ -20,10 +20,10 @@ namespace Project_Management_System.Data
         public DbSet<Models.Task> Tasks { get; set; }
         public DbSet<Admin> Admins { get; set; }
         public DbSet<Client> Clients { get; set; }
-        public DbSet<Developer> Developers { get; set; }  
-        
-        public DbSet<DeveloperProject> DeveloperProjects { get; set; }  
-        public DbSet<FileResource> FileResources { get; set; }  
+        public DbSet<Developer> Developers { get; set; }
+
+        public DbSet<DeveloperProject> DeveloperProjects { get; set; }
+        public DbSet<FileResource> FileResources { get; set; }
         public DbSet<ProjectManager> ProjectManagers { get; set; }
         public DbSet<User> Users { get; set; }
 
@@ -35,5 +35,7 @@ namespace Project_Management_System.Data
         public DbSet<ViewReport> ViewReports { get; set; }
         public DbSet<ViewResource> ViewResources { get; set; }
         public DbSet<DeveloperFinancialRecipt> DeveloperFinancialRecipts { get; set; }
+
+        public DbSet<TaskTime> TaskTimes { get; set; }
     }
 }
