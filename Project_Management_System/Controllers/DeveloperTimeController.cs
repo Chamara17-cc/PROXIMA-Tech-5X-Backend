@@ -160,6 +160,82 @@ namespace Project_Management_System.Controllers
 
 
 
+        [HttpPut("tasksStatusStart/{taskid}")]
+        public async Task<ActionResult<IEnumerable<UpdateTaskStatusDTO>>> UpdateTaskStatusStart(int taskid, [FromBody] UpdateTaskStatusDTO updateTask)
+        {
+
+            try
+            {
+                var statusToUpdate = await _context.Tasks.FirstOrDefaultAsync(p => p.TaskId == taskid);
+
+                if (statusToUpdate == null)
+                {
+                    return NotFound();
+                }
+
+
+                statusToUpdate.TaskStatus = 2;
+
+
+                _context.Update(statusToUpdate);
+                _context.SaveChanges();
+
+                return Ok(statusToUpdate.TaskStatus);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return StatusCode(500, "An error occurred while saving task time.");
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        [HttpPut("tasksStatusStop/{taskid}")]
+        public async Task<ActionResult<IEnumerable<UpdateTaskStatusDTO>>> UpdateTaskStatusStop(int taskid, [FromBody] UpdateTaskStatusDTO updateTask)
+        {
+
+            try
+            {
+                var statusToUpdate = await _context.Tasks.FirstOrDefaultAsync(p => p.TaskId == taskid);
+
+                if (statusToUpdate == null)
+                {
+                    return NotFound();
+                }
+
+
+                statusToUpdate.TaskStatus = 3;
+
+
+                _context.Update(statusToUpdate);
+                _context.SaveChanges();
+
+                return Ok(statusToUpdate.TaskStatus);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return StatusCode(500, "An error occurred while saving task time.");
+            }
+        }
+
+
+
 
 
 
