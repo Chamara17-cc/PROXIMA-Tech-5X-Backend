@@ -82,7 +82,7 @@ namespace Project_Management_System.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "An error occurred while processing the request.");
+                return StatusCode(500, "An error occurred while processing the request."+ex);
             }
         }
             
