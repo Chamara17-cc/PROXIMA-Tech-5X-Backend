@@ -37,5 +37,6 @@ namespace Project_Management_System.Data
         public DbSet<DeveloperFinancialRecipt> DeveloperFinancialRecipts { get; set; }
 
         public DbSet<TaskTime> TaskTimes { get; set; }
+        public DbSet<Payment> Payments { get; set; }
     }
 }
