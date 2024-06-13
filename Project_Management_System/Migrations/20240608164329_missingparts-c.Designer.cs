@@ -12,8 +12,8 @@ using Project_Management_System.Data;
 namespace Project_Management_System.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240529074035_NewMigration")]
-    partial class NewMigration
+    [Migration("20240608164329_missingparts-c")]
+    partial class missingpartsc
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -45,6 +45,9 @@ namespace Project_Management_System.Migrations
 
                     b.Property<double>("ConnectionCost")
                         .HasColumnType("float");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
 
                     b.Property<double>("DeveloperCost")
                         .HasColumnType("float");
@@ -301,6 +304,33 @@ namespace Project_Management_System.Migrations
                     b.HasKey("JobRoleId");
 
                     b.ToTable("JobRoles");
+                });
+
+            modelBuilder.Entity("Project_Management_System.Models.Payment", b =>
+                {
+                    b.Property<int>("PaymentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentId"));
+
+                    b.Property<int>("DeveloperId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("int");
+
+                    b.Property<double>("TotalMonthPayment")
+                        .HasColumnType("float");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("PaymentId");
+
+                    b.HasIndex("DeveloperId");
+
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.Project", b =>
@@ -726,6 +756,17 @@ namespace Project_Management_System.Migrations
                     b.Navigation("Task");
                 });
 
+            modelBuilder.Entity("Project_Management_System.Models.Payment", b =>
+                {
+                    b.HasOne("Project_Management_System.Models.Developer", "Developer")
+                        .WithMany("Payment")
+                        .HasForeignKey("DeveloperId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Developer");
+                });
+
             modelBuilder.Entity("Project_Management_System.Models.Project", b =>
                 {
                     b.HasOne("Project_Management_System.Models.Admin", "Admin")
@@ -845,6 +886,8 @@ namespace Project_Management_System.Migrations
             modelBuilder.Entity("Project_Management_System.Models.Developer", b =>
                 {
                     b.Navigation("DeveloperProjects");
+
+                    b.Navigation("Payment");
 
                     b.Navigation("TaskTimes");
 

@@ -16,6 +16,6 @@ namespace Project_Management_System.DTOs
         [Required]
         public double TotalCost { get; set; }
 
-        //public DateTime Date { get; set; }
+        public DateTime Date { get; set; }
     }
 }

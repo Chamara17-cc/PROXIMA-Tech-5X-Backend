@@ -13,5 +13,6 @@
         public double TotalCost { get; set; }
 
         public int ProjectId { get; set; }
+        public DateTime Date { get; set; }
     }
 }

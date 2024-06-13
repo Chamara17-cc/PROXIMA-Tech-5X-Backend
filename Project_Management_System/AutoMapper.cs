@@ -27,7 +27,12 @@ namespace Project_Management_System
             CreateMap<UpdateProjectTimeDTO, Project>();
             CreateMap<Project, GetTeamDTO>();
             CreateMap<CreateTaskTimeDTO, TaskTime>();
+
+            CreateMap<AddPaymentDto, Payment>();
+            CreateMap<Payment, AddPaymentDto>();
+           
             CreateMap<UpdateTaskStatusDTO, Models.Task>();
+
 
 
 
