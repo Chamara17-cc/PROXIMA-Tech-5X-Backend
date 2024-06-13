@@ -14,14 +14,14 @@ namespace Project_Management_System.Controllers
 
 
     [Route("api/[controller]")]
-    public class DeveloperTaskProgressController : Controller
+    public class DeveloperTaskProgressReportController : Controller
     {
 
 
         private readonly DataContext _context;
         private readonly IMapper _mapper;
 
-        public DeveloperTaskProgressController(DataContext context, IMapper mapper)
+        public DeveloperTaskProgressReportController(DataContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;

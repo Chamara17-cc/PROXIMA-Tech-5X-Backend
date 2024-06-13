@@ -11,14 +11,14 @@ using Project_Management_System.Models;
 namespace Project_Management_System.Controllers
 {
     [Route("api/[controller]")]
-    public class ProjectProgressReportController : ControllerBase
+    public class TimeProgressReportController : ControllerBase
     {
 
 
         private readonly DataContext _context;
         private readonly IMapper _mapper;
 
-        public ProjectProgressReportController(DataContext context, IMapper mapper)
+        public TimeProgressReportController(DataContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
