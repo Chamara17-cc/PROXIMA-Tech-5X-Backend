@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Project_Management_System.Data;
 
@@ -17,7 +18,8 @@ namespace Project_Management_System.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet ("Projects/{projectId}")]
+        [HttpGet ("Projects/{projectId}/register")]
+        [Authorize(Roles = "1,2")]
         public async Task<ActionResult<List<FinanceDigramDto>>> GetDigramValues(int projectId)
         {
             try

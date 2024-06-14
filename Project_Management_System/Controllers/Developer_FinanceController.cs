@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +25,8 @@ namespace Project_Management_System.Controllers
             _mapper = mapper;
         }
 
-        [HttpPost("Developer/{developerId}")]
+        [HttpPost("Developer/{developerId}/register")]
+        [Authorize(Roles = "3")]
         public async Task<ActionResult<AddPaymentDto>> GetDeveloperPayments(int developerId, int month, int year)
         {
             try
@@ -74,7 +76,8 @@ namespace Project_Management_System.Controllers
             }
         }
 
-        [HttpGet("Payment/{developerId}")]
+        [HttpGet("Payment/{developerId}/payment")]
+        [Authorize(Roles = "3")]
         public async Task<ActionResult<Payment>> GetPayment(int developerId, int month, int year)
         {
             try
