@@ -79,7 +79,7 @@ namespace Project_Management_System.Controllers
                 UserCategoryId = UserCategoryId,
                 RefreshToken = refreshToken,
                 RefreshTokenExpiryTime = DateTime.Now.AddDays(7)
-            };
+        };
 
             // Save the new user to the database
             _dataContext.Users.Add(newUser);

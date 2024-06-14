@@ -26,14 +26,18 @@ builder.Services.AddSwaggerGen(options =>
     options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("DefaultPolicy", x =>
-        x.AllowAnyOrigin()
-         .AllowAnyHeader()
-         .AllowAnyMethod());
+builder.Services.AddCors(options => {
+    options.AddPolicy("ReactJSDomain",
+        policy => policy.WithOrigins("*")
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowAnyOrigin()
+        );
 });
-
+builder.Services.AddCors(p => p.AddPolicy("corspolicy", build =>
+{
+    build.WithOrigins(" *").AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
+}));
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddControllers();
