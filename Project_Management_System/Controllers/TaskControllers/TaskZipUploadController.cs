@@ -22,13 +22,7 @@ namespace Project_Management_System.Controllers.TaskControllers
             string fileName = "";
             try
             {
-                if (false)
-                {
-
-                    fileName = "notZip";
-                }
-                else
-                {
+                
                     var extension = "." + file.FileName.Split('.')[file.FileName.Split('.').Length - 1];
                     fileName = DateTime.Now.Ticks.ToString() + extension;
                     Console.WriteLine("filename: " + fileName);
@@ -50,7 +44,7 @@ namespace Project_Management_System.Controllers.TaskControllers
                     {
                         await file.CopyToAsync(stream);
                     }
-                }
+                
             }
             catch (Exception ex)
             {
@@ -68,15 +62,7 @@ namespace Project_Management_System.Controllers.TaskControllers
 
             var result = WriteZip(file);
 
-            var name = await result;
-
-
-            if (name == "notZip")
-            {
-                return BadRequest();
-            }
-            else
-            {
+           
                 var newfile = new FileResource
                 {
                     FileName = file.FileName,
@@ -91,7 +77,7 @@ namespace Project_Management_System.Controllers.TaskControllers
                 await _context.SaveChangesAsync();
 
                 return Ok();
-            }
+            
         }
     }
 }
