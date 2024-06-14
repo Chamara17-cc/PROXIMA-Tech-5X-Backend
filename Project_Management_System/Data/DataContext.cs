@@ -1,4 +1,5 @@
-﻿using Project_Management_System.Models;
+﻿using Org.BouncyCastle.Asn1.Pkcs;
+using Project_Management_System.Models;
 using System.Security.Cryptography;
 
 namespace Project_Management_System.Data
@@ -25,10 +26,11 @@ namespace Project_Management_System.Data
         public DbSet<DeveloperProject> DeveloperProjects { get; set; }
         public DbSet<FileResource> FileResources { get; set; }
         public DbSet<ProjectManager> ProjectManagers { get; set; }
-        public DbSet<User> Users { get; set; }
 
+        public DbSet<User> Users { get; set; }
         public DbSet<UserCategory> UsersCategories { get; set; }
         public DbSet<JobRole> JobRoles { get; set; }
+
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<ViewInvoice> ViewInvoices { get; set; }
 

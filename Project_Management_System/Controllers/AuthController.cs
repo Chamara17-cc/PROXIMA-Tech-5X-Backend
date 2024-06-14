@@ -45,17 +45,73 @@ namespace Project_Management_System.Controllers
             {
                 return BadRequest(new { message = "Incorrect password" });
             }
-            //string userCategoryType = user.UserCategory?.UserCategoryType;
 
-            /* string userCategoryType = _dataContext.UserCategory
-                                         .Where(uc => uc.UserCategoryId == user.UserCategoryId)
-                                         .Select(uc => uc.UserCategoryType)
-                                         .FirstOrDefault();*/
             // Generate JWT token
-            string token = GenerateAccessJwtToken(user);
+            string accessToken = GenerateAccessJwtToken(user);
+            string refreshToken = GenerateRefreshToken();
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+            _dataContext.SaveChanges();
 
-            // Return token to the client
-            return Ok(token);
+            var response = new AuthenticationResponseDto
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            };
+            return Ok(response);
+        }
+
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            // Retrieve the refresh token from the request
+            var refreshToken = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            // Find the user associated with the refresh token
+            var user = _dataContext.Users.FirstOrDefault(u => u.RefreshToken == refreshToken);
+
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Invalid refresh token" });
+            }
+
+            // Clear the refresh token from the user
+            user.RefreshToken = null;
+            user.RefreshTokenExpiryTime = null;
+            _dataContext.SaveChanges();
+
+            // Optionally, clear the refresh token from the client-side (e.g., browser)
+            // This depends on how you store the refresh token on the client-side
+
+            return Ok(new { message = "Logout successful" });
+        }
+
+
+        [HttpPost("refresh")]
+        public ActionResult<AuthenticationResponseDto> Refresh(TokenRefreshRequestDto request)
+        {
+            var user = _dataContext.Users.FirstOrDefault(u => u.RefreshToken == request.RefreshToken);
+
+            if (user == null || user.RefreshTokenExpiryTime <= DateTime.Now)
+            {
+                return Unauthorized(new { message = "Invalid refresh token" });
+            }
+
+            string newAccessToken = GenerateAccessJwtToken(user);
+            string newRefreshToken = GenerateRefreshToken();
+
+            user.RefreshToken = newRefreshToken;
+            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+            _dataContext.SaveChanges();
+
+            var response = new AuthenticationResponseDto
+            {
+                AccessToken = newAccessToken,
+                RefreshToken = newRefreshToken
+
+            };
+
+            return Ok(response);
         }
 
         private string GenerateAccessJwtToken(User user)
@@ -63,9 +119,9 @@ namespace Project_Management_System.Controllers
 
             List<Claim> claims = new List<Claim>
             {
-                new Claim("User ID",user.UserId.ToString()),
+                new Claim("UserID", user.UserId.ToString()),
                 new Claim("UserName", user.UserName),
-                new Claim("UserCategoryId", user.UserCategoryId.ToString()),
+                new Claim("UserCategory", user.UserCategoryId.ToString())
 
             };
 
@@ -76,7 +132,7 @@ namespace Project_Management_System.Controllers
 
             var token = new JwtSecurityToken(
                     claims: claims,
-                    expires: DateTime.Now.AddHours(24),
+                    expires: DateTime.Now.AddHours(1),
                     signingCredentials: creds
                  );
 

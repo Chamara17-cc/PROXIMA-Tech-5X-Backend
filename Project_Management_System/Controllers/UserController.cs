@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MimeKit;
 using Org.BouncyCastle.Asn1.Pkcs;
+using Project_Management_System.Configuration;
 using Project_Management_System.Data;
 using Project_Management_System.DTOs;
 using Project_Management_System.Models;
@@ -28,7 +30,7 @@ namespace Project_Management_System.Controllers
         }
 
 
-        [HttpPost("register")]
+        [HttpPost("register"), Authorize(Roles = "1")]
         public async Task<ActionResult<string>> RegisterUser(UserRegisterDto request)
         {
             var randomPassword = CreateRandomPassword(10);
@@ -57,6 +59,8 @@ namespace Project_Management_System.Controllers
 
             int JobRoleId = jobRole.JobRoleId;
 
+            string refreshToken = GenerateRefreshToken();
+
             // Assuming you have a User model and a database context
             User newUser = new User
             {
@@ -72,21 +76,23 @@ namespace Project_Management_System.Controllers
                 ContactNumber = request.ContactNumber,
                 Email = request.Email,
                 JobRoleId = JobRoleId,
-                UserCategoryId = UserCategoryId
+                UserCategoryId = UserCategoryId,
+                RefreshToken = refreshToken,
+                RefreshTokenExpiryTime = DateTime.Now.AddDays(7)
             };
 
             // Save the new user to the database
             _dataContext.Users.Add(newUser);
             _dataContext.SaveChanges();
 
-            // return (randomPassword);
+            //return (randomPassword);
             // await SendPasswordEmail(request.Email,request.UserName, randomPassword);
 
             return Ok(new { message = "User registered successfully. Email sent with password." });
 
         }
 
-        [HttpGet("{id:int}")]
+        [HttpGet("{id:int}"), Authorize(Roles = "1,2")]
         public async Task<ActionResult<ViewUserDetailDto>> GetById(int id)
         {
             var user = await _dataContext.Users
@@ -121,7 +127,7 @@ namespace Project_Management_System.Controllers
             return Ok(viewUserDto);
         }
 
-        [HttpGet("list")]
+        [HttpGet("list"), Authorize(Roles = "1,2")]
         public ActionResult<IEnumerable<ViewUserListDto>> GetAll()
         {
             var users = _dataContext.Users
@@ -140,6 +146,23 @@ namespace Project_Management_System.Controllers
             return Ok(viewUserListDtos);
         }
 
+
+        [HttpGet("search")]
+        public ActionResult<List<User>> SearchUsers([FromQuery] string term)
+        {
+            var users = _dataContext.Users
+                .Where(u => u.UserId.ToString().Contains(term) || u.UserName.Contains(term))
+                .ToList();
+
+            if (users == null || users.Count == 0)
+            {
+                return NotFound(new { message = "No users found" });
+            }
+
+            return Ok(users);
+        }
+
+
         public static string CreateRandomPassword(int PasswordLength)
         {
             string _allowedChars = "0123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ";
@@ -153,6 +176,13 @@ namespace Project_Management_System.Controllers
             return new string(chars);
         }
 
+        private string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[32];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
+        }
 
         /* private async Task SendPasswordEmail(string userEmail, string userName, string password)
          {

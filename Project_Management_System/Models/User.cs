@@ -27,6 +27,8 @@ namespace Project_Management_System.Models
         public DateTime JoinDate { get; set; } = DateTime.Now;
         public DateTime LastLoginDate { get; set; } = DateTime.Now;
         public bool IsActive { get; set; } = true;
+        public string RefreshToken { get; set; }
+        public DateTime? RefreshTokenExpiryTime { get; set; }
 
         public int JobRoleId { get; set; }
         public JobRole JobRole { get; set; }
