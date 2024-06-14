@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Project_Management_System.Data;
 using Project_Management_System.DTOs;
 using Project_Management_System.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Project_Management_System.Controllers
 {
@@ -29,7 +30,8 @@ namespace Project_Management_System.Controllers
             new Budget(),
         };
 
-        [HttpGet]
+        [HttpGet ("register")]
+        [Authorize(Roles = "1")]
         public async Task<ActionResult<List<GetProjectDto>>> GetProject()
         {
             var projectlist = await _budgetdatacontext.Projects.ToListAsync();
@@ -37,7 +39,8 @@ namespace Project_Management_System.Controllers
             return Ok(projectDtos);
         }
 
-        [HttpPost("Projects/{projectid}")]
+        [HttpPost("register/Projects/{projectid}"),]
+        [Authorize(Roles ="1")]
         public async Task<ActionResult<List<Budget>>> AddBudget(AddBudgetDto budgelist, int projectid)
         {
             try
@@ -66,7 +69,8 @@ namespace Project_Management_System.Controllers
         }
 
 
-        [HttpGet("Projects/{projectid}")]
+        [HttpGet("register/Projects/{projectid}")]
+        [Authorize(Roles = "1")]
         public async Task<ActionResult<List<GetBudgetDto>>> GetBudget(int projectid)
         {
             try
@@ -86,7 +90,8 @@ namespace Project_Management_System.Controllers
             }
         }
             
-        [HttpPut("Projects/{projectid}")]
+        [HttpPut("Projects/{projectid}/register")]
+        [Authorize(Roles = "1")]
         public async Task<ActionResult<List<UpdateBudgetDto>>> UpdateBudget(int projectid, [FromBody] UpdateBudgetDto updatebudget)
         {
             try
