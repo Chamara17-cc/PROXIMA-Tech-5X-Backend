@@ -5,28 +5,29 @@ namespace Project_Management_System.DTOs
     {
 
 
-        public string? TaskName { get; set; }
+        public string ProjectName { get; set; }
+
+        public int ProjectId { get; set; }
+
+        public string TaskName { get; set; }
 
         public int TaskId { get; set; }
 
-        public string? TaskType { get; set; }
+        public int TaskStatus { get; set; }
 
-        public string? TaskDescription { get; set; }
+        public string TaskDescription { get; set; }
 
-        public int TaskPriority { get; set; }
+        public int Priority { get; set; }
 
-        public string? TaskTechnologies { get; set; }
+        public string? Technology { get; set; }
 
-        public string? TaskComments { get; set; }
+        public string? Dependancy { get; set; }
 
+        public DateTime CreatedDate { get; set; }
 
+        public int TimeDuration { get; set; }
 
-
-        public DateTime TaskStartDate { get; set; }
-
-        public int TaskDuration { get; set; }
-
-        public DateTime TaskDueDate { get; set; }
+        public DateTime DueDate { get; set; }
 
     }
 }

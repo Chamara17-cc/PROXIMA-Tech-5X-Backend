@@ -20,7 +20,7 @@ namespace Project_Management_System
             CreateMap<Project, ProjectDescriptionDTO>();
             CreateMap<Models.Task, GetTaskDTO>();
             CreateMap<Models.Task, TaskDescriptionDTO>();
-            CreateMap<Project, GetProjectProgressDetailsDTO>();
+
 
 
             CreateMap<UpdateTaskDTO, Models.Task>();
@@ -30,7 +30,7 @@ namespace Project_Management_System
 
             CreateMap<AddPaymentDto, Payment>();
             CreateMap<Payment, AddPaymentDto>();
-           
+
             CreateMap<UpdateTaskStatusDTO, Models.Task>();
 
 

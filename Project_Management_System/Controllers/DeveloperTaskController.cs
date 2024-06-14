@@ -6,10 +6,11 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer;
+using Microsoft.VisualBasic;
 using Project_Management_System.Data;
 using Project_Management_System.DTOs;
 using Project_Management_System.Models;
-
+using Task = Project_Management_System.Models.Task;
 
 namespace Pro.Controllers
 {
@@ -54,20 +55,50 @@ namespace Pro.Controllers
 
 
 
-        [HttpGet("{id}")]
-        public async Task<TaskDescriptionDTO> GetTaskDetails(int id)
+
+        [HttpGet("TaskDescription/{taskid}")]
+        public async Task<ActionResult<IEnumerable<Task>>> GetTaskDetails(int taskid)
         {
-            var task = await _context.Tasks.FindAsync(id);
+
+            var projectId = await _context.Tasks
+           .Where(p => p.TaskId == taskid)
+           .Select(p => p.ProjectId)
+           .FirstOrDefaultAsync();
+
+
+            var projectName = await _context.Projects
+                .Where(e => e.ProjectId == projectId)
+                .Select(p => p.ProjectName)
+            .FirstOrDefaultAsync();
+
+
+
+            var task = await _context.Tasks
+                .Where(e => e.TaskId == taskid)
+                .Select(e => new TaskDescriptionDTO
+                {
+                    ProjectId = e.ProjectId,
+                    ProjectName = projectName,
+                    TaskName = e.TaskName,
+                    TaskId = e.TaskId,
+                    TaskStatus = e.TaskStatus,
+                    TaskDescription = e.TaskDescription,
+                    Priority = e.Priority,
+                    Technology = e.Technology,
+                    Dependancy = e.Dependancy,
+                    CreatedDate = e.CreatedDate,
+                    TimeDuration = e.TimeDuration,
+                    DueDate = e.DueDate
+
+                }).ToListAsync();
 
             if (task == null)
             {
-                throw new Exception("Not Found");
+                Console.WriteLine("Task details does not exist");
             }
 
-            return _mapper.Map<TaskDescriptionDTO>(task);
+            return Ok(task);
         }
-
-
 
     }
 }
