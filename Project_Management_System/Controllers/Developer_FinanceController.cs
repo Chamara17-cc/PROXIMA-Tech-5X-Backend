@@ -76,7 +76,7 @@ namespace Project_Management_System.Controllers
             }
         }
 
-        [HttpGet("Payment/{developerId}/payment")]
+        [HttpGet("Payment/{developerId}/register")]
         [Authorize(Roles = "3")]
         public async Task<ActionResult<Payment>> GetPayment(int developerId, int month, int year)
         {
