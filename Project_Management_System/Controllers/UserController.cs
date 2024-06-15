@@ -30,7 +30,7 @@ namespace Project_Management_System.Controllers
         }
 
 
-        [HttpPost("register"), Authorize(Roles = "1")]
+        [HttpPost("register"), ]
         public async Task<ActionResult<string>> RegisterUser(UserRegisterDto request)
         {
             var randomPassword = CreateRandomPassword(10);
@@ -85,10 +85,10 @@ namespace Project_Management_System.Controllers
             _dataContext.Users.Add(newUser);
             _dataContext.SaveChanges();
 
-            //return (randomPassword);
+            return (randomPassword);
             // await SendPasswordEmail(request.Email,request.UserName, randomPassword);
 
-            return Ok(new { message = "User registered successfully. Email sent with password." });
+           // return Ok(new { message = "User registered successfully. Email sent with password." });
 
         }
 
