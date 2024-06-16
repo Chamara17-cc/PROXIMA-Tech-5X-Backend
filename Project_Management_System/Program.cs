@@ -64,9 +64,9 @@ builder.Services.AddAuthentication(options =>
 // Add Authoraization 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
-    options.AddPolicy("RequireManagerRole", policy => policy.RequireRole("Manager"));
-    options.AddPolicy("RequireDeveloperRole", policy => policy.RequireRole("Developer"));
+    options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("ADMIN"));
+    options.AddPolicy("RequireManagerRole", policy => policy.RequireRole("MANAGER"));
+    options.AddPolicy("RequireDeveloperRole", policy => policy.RequireRole("DEVELOPER"));
 });
 
 
