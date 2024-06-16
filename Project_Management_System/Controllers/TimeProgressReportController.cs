@@ -26,27 +26,51 @@ namespace Project_Management_System.Controllers
 
 
 
-        [HttpGet("ProjectProgressReport/{projectid}")]
+        [HttpGet("ProjectProgressReportRemain/{projectid}")]
 
-        public async Task<ActionResult<IEnumerable<Project>>> getDeveloperProjectProgress(int projectid)
+        public async Task<ActionResult<IEnumerable<Project>>> getDeveloperProjectProgressRemain(int projectid)
         {
 
-            var projects = await _context.Projects
-                .Where(e => e.ProjectId == projectid)
-                .Select(e => new GetProjectProgressDetailsDTO
-                {
-                    TotalProjectRemainingHours = e.TotalProjectRemainingHours,
-                    TotalProjectCompletedHours = e.TotalProjectCompletedHours
+            var remain = await _context.Projects
+        .Where(e => e.ProjectId == projectid)
+        .Select(e => e.TotalProjectRemainingHours)
+        .FirstOrDefaultAsync();
 
-                }).ToListAsync();
 
-            if (projects == null)
+
+            if (remain == null)
             {
                 Console.WriteLine("Projects are not added");
             }
 
 
-            return Ok(projects);
+            return Ok(remain);
+
+        }
+
+
+
+        [HttpGet("ProjectProgressReportComplete/{projectid}")]
+
+        public async Task<ActionResult<IEnumerable<Project>>> getDeveloperProjectProgressComplete(int projectid)
+        {
+
+
+
+            var remain = await _context.Projects
+        .Where(e => e.ProjectId == projectid)
+        .Select(e => e.TotalProjectCompletedHours)
+        .FirstOrDefaultAsync();
+
+
+
+            if (remain == null)
+            {
+                Console.WriteLine("Projects are not added");
+            }
+
+
+            return Ok(remain);
 
         }
 
