@@ -7,11 +7,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using BCrypt.Net;
+using System.Security.Cryptography;
 using Project_Management_System.DTOs;
 using Project_Management_System.Models;
 using Project_Management_System.Data;
-using System.Security.Cryptography;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
 
 namespace Project_Management_System.Controllers
 {
@@ -21,23 +22,31 @@ namespace Project_Management_System.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly DataContext _dataContext;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IConfiguration configuration, DataContext dataContext)
+        public AuthController(IConfiguration configuration, DataContext dataContext, ILogger<AuthController> logger)
         {
             _configuration = configuration;
             _dataContext = dataContext;
+            _logger = logger;
         }
 
         [HttpPost("login")]
-        public ActionResult<string> Login(UserLoginDto request)
+        public ActionResult<AuthenticationResponseDto> Login(UserLoginDto request)
         {
-            // Assuming you retrieve user data from the database
+            // Retrieve user data from the database
             User user = _dataContext.Users.FirstOrDefault(u => u.UserName == request.UserName);
 
             // Check if the user exists
             if (user == null)
             {
                 return BadRequest(new { message = "Enter valid User name." });
+            }
+
+            // Check if the user's password hash is not null
+            if (user.PasswordHash == null)
+            {
+                return BadRequest(new { message = "Password hash is missing." });
             }
 
             // Check if password matches
@@ -49,8 +58,25 @@ namespace Project_Management_System.Controllers
             // Generate JWT token
             string accessToken = GenerateAccessJwtToken(user);
             string refreshToken = GenerateRefreshToken();
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+
+            // Handle refresh token
+            var userRefreshToken = _dataContext.RefreshTokens.FirstOrDefault(rt => rt.UserId == user.UserId);
+            if (userRefreshToken == null)
+            {
+                userRefreshToken = new RefreshToken
+                {
+                    Token = refreshToken,
+                    RefreshTokenExpiryTime = DateTime.Now.AddDays(7),
+                    UserId = user.UserId
+                };
+                _dataContext.RefreshTokens.Add(userRefreshToken);
+            }
+            else
+            {
+                userRefreshToken.Token = refreshToken;
+                userRefreshToken.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+            }
+
             _dataContext.SaveChanges();
 
             var response = new AuthenticationResponseDto
@@ -58,57 +84,55 @@ namespace Project_Management_System.Controllers
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
             };
+
             return Ok(response);
         }
 
         [HttpPost("logout")]
-        public IActionResult Logout()
+        public IActionResult Logout([FromBody] UserLogoutDto request)
         {
-            // Retrieve the refresh token from the request
-            var refreshToken = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            // Log the received token for debugging
+            _logger.LogInformation("Received refresh token: {Token}", request.RefreshToken);
 
-            // Find the user associated with the refresh token
-            var user = _dataContext.Users.FirstOrDefault(u => u.RefreshToken == refreshToken);
+            // Find the refresh token entry
+            var refreshTokenEntry = _dataContext.RefreshTokens.FirstOrDefault(rt => rt.Token == request.RefreshToken);
 
-            if (user == null)
+            if (refreshTokenEntry == null)
             {
+                _logger.LogWarning("Invalid refresh token: {Token}", request.RefreshToken);
                 return Unauthorized(new { message = "Invalid refresh token" });
             }
 
-            // Clear the refresh token from the user
-            user.RefreshToken = null;
-            user.RefreshTokenExpiryTime = null;
+            // Remove the refresh token entry
+            _dataContext.RefreshTokens.Remove(refreshTokenEntry);
             _dataContext.SaveChanges();
 
-            // Optionally, clear the refresh token from the client-side (e.g., browser)
-            // This depends on how you store the refresh token on the client-side
-
+            _logger.LogInformation("Refresh token invalidated successfully: {Token}", request.RefreshToken);
             return Ok(new { message = "Logout successful" });
         }
-
-
         [HttpPost("refresh")]
         public ActionResult<AuthenticationResponseDto> Refresh(TokenRefreshRequestDto request)
         {
-            var user = _dataContext.Users.FirstOrDefault(u => u.RefreshToken == request.RefreshToken);
+            var refreshTokenEntry = _dataContext.RefreshTokens.FirstOrDefault(rt => rt.Token == request.RefreshToken);
 
-            if (user == null || user.RefreshTokenExpiryTime <= DateTime.Now)
+            if (refreshTokenEntry == null || refreshTokenEntry.RefreshTokenExpiryTime <= DateTime.Now)
             {
-                return Unauthorized(new { message = "Invalid refresh token" });
+                return Unauthorized(new { message = "Invalid or expired refresh token" });
             }
+
+            var user = _dataContext.Users.FirstOrDefault(u => u.UserId == refreshTokenEntry.UserId);
 
             string newAccessToken = GenerateAccessJwtToken(user);
             string newRefreshToken = GenerateRefreshToken();
 
-            user.RefreshToken = newRefreshToken;
-            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+            refreshTokenEntry.Token = newRefreshToken;
+            refreshTokenEntry.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
             _dataContext.SaveChanges();
 
             var response = new AuthenticationResponseDto
             {
                 AccessToken = newAccessToken,
                 RefreshToken = newRefreshToken
-
             };
 
             return Ok(response);
@@ -116,18 +140,16 @@ namespace Project_Management_System.Controllers
 
         private string GenerateAccessJwtToken(User user)
         {
-
+            var userCategory = GetUserCategoryById(user.UserCategoryId);
             List<Claim> claims = new List<Claim>
             {
                 new Claim("UserID", user.UserId.ToString()),
                 new Claim("UserName", user.UserName),
-                new Claim("UserCategory", user.UserCategoryId.ToString())
-
+                new Claim("UserCategoryId", user.UserCategoryId.ToString()),
+                new Claim("UserCategory", userCategory.UserCategoryType)
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                _configuration.GetSection("AppSettings:Token").Value!));
-
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
             var token = new JwtSecurityToken(
@@ -136,9 +158,7 @@ namespace Project_Management_System.Controllers
                     signingCredentials: creds
                  );
 
-            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-
-            return jwt;
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         private string GenerateRefreshToken()
@@ -149,5 +169,9 @@ namespace Project_Management_System.Controllers
             return Convert.ToBase64String(randomNumber);
         }
 
+        private UserCategory GetUserCategoryById(int userCategoryId)
+        {
+            return _dataContext.UsersCategories.FirstOrDefault(uc => uc.UserCategoryId == userCategoryId);
+        }
     }
 }

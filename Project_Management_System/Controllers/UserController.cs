@@ -30,11 +30,7 @@ namespace Project_Management_System.Controllers
         }
 
 
-
-
-        
-        [HttpPost("register"), Authorize(Roles = "1")]
-
+        [HttpPost("register")]
         public async Task<ActionResult<string>> RegisterUser(UserRegisterDto request)
         {
             var randomPassword = CreateRandomPassword(10);
@@ -63,8 +59,6 @@ namespace Project_Management_System.Controllers
 
             int JobRoleId = jobRole.JobRoleId;
 
-            string refreshToken = GenerateRefreshToken();
-
             // Assuming you have a User model and a database context
             User newUser = new User
             {
@@ -81,25 +75,20 @@ namespace Project_Management_System.Controllers
                 Email = request.Email,
                 JobRoleId = JobRoleId,
                 UserCategoryId = UserCategoryId,
-                RefreshToken = refreshToken,
-                RefreshTokenExpiryTime = DateTime.Now.AddDays(7)
-        };
+            };
 
             // Save the new user to the database
             _dataContext.Users.Add(newUser);
             _dataContext.SaveChanges();
 
-
-
-           // return (randomPassword);
-
+            //return (randomPassword);
             // await SendPasswordEmail(request.Email,request.UserName, randomPassword);
 
-           return Ok(new { message = "User registered successfully. Email sent with password." });
+            return Ok(new { message = "User registered successfully. Email sent with password." });
 
         }
 
-        [HttpGet("{id:int}"), Authorize(Roles = "1,2")]
+        [HttpGet("{id:int}")]
         public async Task<ActionResult<ViewUserDetailDto>> GetById(int id)
         {
             var user = await _dataContext.Users
@@ -134,7 +123,7 @@ namespace Project_Management_System.Controllers
             return Ok(viewUserDto);
         }
 
-        [HttpGet("list"), Authorize(Roles = "1,2")]
+        [HttpGet("list")]
         public ActionResult<IEnumerable<ViewUserListDto>> GetAll()
         {
             var users = _dataContext.Users
@@ -183,13 +172,7 @@ namespace Project_Management_System.Controllers
             return new string(chars);
         }
 
-        private string GenerateRefreshToken()
-        {
-            var randomNumber = new byte[32];
-            using var rng = RandomNumberGenerator.Create();
-            rng.GetBytes(randomNumber);
-            return Convert.ToBase64String(randomNumber);
-        }
+
 
         /* private async Task SendPasswordEmail(string userEmail, string userName, string password)
          {
