@@ -26,7 +26,7 @@ public class TransactionController : ControllerBase
     }
 
     [HttpGet ("register")]
-    [Authorize(Roles = "1")]
+ //   [Authorize(Roles = "1")]
     public async Task<ActionResult<List<GetProjectDto>>> GetProject()
     {
         var projectlist = await _transacdatacontext.Projects.ToListAsync();
@@ -34,7 +34,7 @@ public class TransactionController : ControllerBase
     }
 
     [HttpPost("Project/{projectId}/register")]
-    [Authorize(Roles = "1")]
+   // [Authorize(Roles = "1")]
     public async Task<ActionResult<Transaction>> AddTransaction(AddTransacDto invoice, int projectId)
     {
         try
@@ -82,7 +82,7 @@ public class TransactionController : ControllerBase
     }
 
     [HttpGet("Projects/{projectId}/register")]
-    [Authorize(Roles = "1")]
+    //[Authorize(Roles = "1")]
     public async Task<ActionResult<List<GetTransacDto>>> GetTransactions(int projectId)
     {
         try
@@ -107,7 +107,7 @@ public class TransactionController : ControllerBase
     }
 
     [HttpDelete("Transaction/{transacId}/{projectId}/register")]
-    [Authorize(Roles = "1")]
+  //  [Authorize(Roles = "1")]
     public async Task<ActionResult> DeleteTransaction(int transacId, int projectId)
     {
         var transaction = await _transacdatacontext.Transactions.FirstOrDefaultAsync(p => p.TransacId == transacId);
@@ -123,7 +123,7 @@ public class TransactionController : ControllerBase
     }
 
     [HttpPut("Transaction/{transacId}/register")]
-    [Authorize(Roles = "1")]
+   // [Authorize(Roles = "1")]
     public async Task<ActionResult<Transaction>> UpdateTransaction(double value, string type, string description, int transacId, DateTime? date)
     {
         try
