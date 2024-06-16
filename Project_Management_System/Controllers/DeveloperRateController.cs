@@ -25,7 +25,7 @@ namespace Project_Management_System.Controllers
             new DeveloperRate()
         };
         [HttpPost("register")]
-        [Authorize(Roles = "1")]
+     //   [Authorize(Roles = "1")]
         public async Task<ActionResult<DeveloperRate>> AddRate(DeveloperRate updatedRate)
         {
             var newRate = _datacontext.DeveloperRates.Add(updatedRate);
@@ -53,7 +53,7 @@ namespace Project_Management_System.Controllers
          }*/
 
         [HttpGet("register")]
-        [Authorize(Roles = "1,2,3")]
+      //  [Authorize(Roles = "1,2,3")]
         public async Task<ActionResult<GetRateDto>> GetRate()
         {
             var currnetRate = await _datacontext.DeveloperRates.OrderByDescending(x => x.Rateid).FirstOrDefaultAsync();

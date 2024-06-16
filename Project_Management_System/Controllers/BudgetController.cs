@@ -31,7 +31,7 @@ namespace Project_Management_System.Controllers
         };
 
         [HttpGet ("register")]
-        [Authorize(Roles = "1")]
+     //   [Authorize(Roles = "1")]
         public async Task<ActionResult<List<GetProjectDto>>> GetProject()
         {
             var projectlist = await _budgetdatacontext.Projects.ToListAsync();
@@ -40,7 +40,7 @@ namespace Project_Management_System.Controllers
         }
 
         [HttpPost("register/Projects/{projectid}"),]
-        [Authorize(Roles ="1")]
+      //  [Authorize(Roles ="1")]
         public async Task<ActionResult<List<Budget>>> AddBudget(AddBudgetDto budgelist, int projectid)
         {
             try
@@ -70,7 +70,7 @@ namespace Project_Management_System.Controllers
 
 
         [HttpGet("register/Projects/{projectid}")]
-        [Authorize(Roles = "1")]
+      //  [Authorize(Roles = "1")]
         public async Task<ActionResult<List<GetBudgetDto>>> GetBudget(int projectid)
         {
             try
@@ -91,7 +91,7 @@ namespace Project_Management_System.Controllers
         }
             
         [HttpPut("Projects/{projectid}/register")]
-        [Authorize(Roles = "1")]
+      //  [Authorize(Roles = "1")]
         public async Task<ActionResult<List<UpdateBudgetDto>>> UpdateBudget(int projectid, [FromBody] UpdateBudgetDto updatebudget)
         {
             try

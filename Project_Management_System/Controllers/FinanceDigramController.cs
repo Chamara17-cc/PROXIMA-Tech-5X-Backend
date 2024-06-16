@@ -19,7 +19,7 @@ namespace Project_Management_System.Controllers
         }
 
         [HttpGet ("Projects/{projectId}/register")]
-        [Authorize(Roles = "1,2")]
+     //   [Authorize(Roles = "1,2")]
         public async Task<ActionResult<List<FinanceDigramDto>>> GetDigramValues(int projectId)
         {
             try
