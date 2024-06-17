@@ -2,13 +2,16 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MimeKit;
 using Org.BouncyCastle.Asn1.Pkcs;
+using Org.BouncyCastle.Asn1.X9;
 using Project_Management_System.Configuration;
 using Project_Management_System.Data;
 using Project_Management_System.DTOs;
 using Project_Management_System.Models;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace Project_Management_System.Controllers
@@ -81,11 +84,52 @@ namespace Project_Management_System.Controllers
             _dataContext.Users.Add(newUser);
             _dataContext.SaveChanges();
 
-            //return (randomPassword);
-            // await SendPasswordEmail(request.Email,request.UserName, randomPassword);
 
-            return Ok(new { message = "User registered successfully. Email sent with password." });
 
+            return (randomPassword);
+            //await SendPasswordEmail(request.Email, request.UserName, randomPassword);
+            //return Ok(new { message = "User registered successfully", randomPassword }); ;
+
+        }
+
+        [HttpPost("admin")]
+        public async Task<ActionResult<Admin>> AddAdmin(AdminDTO request)
+        {
+            var newAdmin = new Admin
+            {
+                AdminId = request.AdminId
+            };
+            _dataContext.Add(newAdmin);
+            await _dataContext.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpPost("projectManager")]
+        public async Task<ActionResult<ProjectManager>> AddPManager(PmDTO request)
+        {
+            var newProjectM = new ProjectManager
+            {
+                ProjectManagerId = request.ProjectManagerId
+            };
+
+            _dataContext.Add(newProjectM);
+            await _dataContext.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpPost("developer")]
+        public async Task<ActionResult<Developer>> AddDeveloper(DevDTO request)
+        {
+            var newDev = new Developer
+            {
+                DeveloperId = request.DeveloperId,
+                FinanceReceiptId = request.FinanceReceiptId,
+                TotalDeveloperWorkingHours = 0
+            };
+
+            _dataContext.Add(newDev);
+            await _dataContext.SaveChangesAsync();
+            return Ok(new { message = "Developer added" });
         }
 
         [HttpGet("{id:int}")]
@@ -142,7 +186,6 @@ namespace Project_Management_System.Controllers
             return Ok(viewUserListDtos);
         }
 
-
         [HttpGet("search")]
         public ActionResult<List<User>> SearchUsers([FromQuery] string term)
         {
@@ -158,7 +201,6 @@ namespace Project_Management_System.Controllers
             return Ok(users);
         }
 
-
         public static string CreateRandomPassword(int PasswordLength)
         {
             string _allowedChars = "0123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ";
@@ -172,68 +214,68 @@ namespace Project_Management_System.Controllers
             return new string(chars);
         }
 
+       
 
-
-        /* private async Task SendPasswordEmail(string userEmail, string userName, string password)
+    /* private async Task SendPasswordEmail(string userEmail, string userName, string password)
+     {
+         try
          {
-             try
+             using var client = new MailKit.Net.Smtp.SmtpClient();
+             await client.ConnectAsync(_mailSettings.Server, _mailSettings.Port, false);
+             await client.AuthenticateAsync(_mailSettings.UserName, _mailSettings.Password);
+
+             var message = new MimeMessage();
+             message.From.Add(new MailboxAddress(_mailSettings.SenderName, _mailSettings.SenderEmail));
+             message.To.Add(new MailboxAddress(userEmail, userEmail)); // Use email address as both name and address
+             message.Subject = "Your Password";
+
+             // Include the user's name in the email body
+             var text = $"Dear {userName},\n\nYour password is: {password}";
+             message.Body = new TextPart("plain")
              {
-                 using var client = new MailKit.Net.Smtp.SmtpClient();
-                 await client.ConnectAsync(_mailSettings.Server, _mailSettings.Port, false);
-                 await client.AuthenticateAsync(_mailSettings.UserName, _mailSettings.Password);
-
-                 var message = new MimeMessage();
-                 message.From.Add(new MailboxAddress(_mailSettings.SenderName, _mailSettings.SenderEmail));
-                 message.To.Add(new MailboxAddress(userEmail, userEmail)); // Use email address as both name and address
-                 message.Subject = "Your Password";
-
-                 // Include the user's name in the email body
-                 var text = $"Dear {userName},\n\nYour password is: {password}";
-                 message.Body = new TextPart("plain")
-                 {
-                     Text = text
-                 };
+                 Text = text
+             };
 
 
-                 await client.SendAsync(message);
-                 await client.DisconnectAsync(true);
+             await client.SendAsync(message);
+             await client.DisconnectAsync(true);
 
-                 // Save the mail data to your database
-                 var mailData = new MailData
-                 {
-                     EmailToId = userEmail,
-                     EmailToName = userName,
-                     EmailSubject = "Your Password",
-                     EmailBody = text
-                 };
-                 _dataContext.MailData.Add(mailData);
-                 await _dataContext.SaveChangesAsync();
-             }
-             catch (Exception ex)
+             // Save the mail data to your database
+             var mailData = new MailData
              {
-                 // Log or handle the exception as needed
-                 Console.WriteLine($"Error sending email: {ex.Message}");
-                 throw;
-             }
-         }*/
+                 EmailToId = userEmail,
+                 EmailToName = userName,
+                 EmailSubject = "Your Password",
+                 EmailBody = text
+             };
+             _dataContext.MailData.Add(mailData);
+             await _dataContext.SaveChangesAsync();
+         }
+         catch (Exception ex)
+         {
+             // Log or handle the exception as needed
+             Console.WriteLine($"Error sending email: {ex.Message}");
+             throw;
+         }
+     }*/
 
 
-        /*  public async Task<IActionResult> RegisterUserAndSendEmail(UserRegisterDto userDto)
+    /*  public async Task<IActionResult> RegisterUserAndSendEmail(UserRegisterDto userDto)
+      {
+          var result = await RegisterUser(userDto); // Register the user and get the ActionResult<string>
+          if (result.Result is BadRequestObjectResult badRequest)
           {
-              var result = await RegisterUser(userDto); // Register the user and get the ActionResult<string>
-              if (result.Result is BadRequestObjectResult badRequest)
-              {
-                  // Handle bad request if needed
-                  return BadRequest(badRequest.Value);
-              }
-              var randomPassword = result.Value; // Extract the string value from ActionResult<string>
-              await SendPasswordEmail(userDto.Email, userDto.UserName, randomPassword); // Send email to the user with the password
-              return Ok("User registered successfully, and email sent with password."); // Return OK status
+              // Handle bad request if needed
+              return BadRequest(badRequest.Value);
           }
-  */
+          var randomPassword = result.Value; // Extract the string value from ActionResult<string>
+          await SendPasswordEmail(userDto.Email, userDto.UserName, randomPassword); // Send email to the user with the password
+          return Ok("User registered successfully, and email sent with password."); // Return OK status
+      }
+*/
 
 
-    }
+}
 }
 
 
