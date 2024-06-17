@@ -29,7 +29,6 @@ namespace Project_Management_System.Controllers
             // _mailSettings = mailSettings;
         }
 
-
         [HttpPost("register")]
         public async Task<ActionResult<string>> RegisterUser(UserRegisterDto request)
         {
@@ -74,7 +73,7 @@ namespace Project_Management_System.Controllers
                 ContactNumber = request.ContactNumber,
                 Email = request.Email,
                 JobRoleId = JobRoleId,
-                UserCategoryId = UserCategoryId,
+                UserCategoryId = UserCategoryId
             };
 
             // Save the new user to the database
@@ -82,7 +81,9 @@ namespace Project_Management_System.Controllers
             _dataContext.SaveChanges();
 
             //return (randomPassword);
-            // await SendPasswordEmail(request.Email,request.UserName, randomPassword);
+
+            // await SendPasswordEmail(request.Email, request.UserName, randomPassword);
+
 
             return Ok(new { message = "User registered successfully. Email sent with password." });
 
