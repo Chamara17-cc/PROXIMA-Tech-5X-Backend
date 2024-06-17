@@ -30,7 +30,7 @@ namespace Project_Management_System.Controllers
         }
 
 
-        [HttpPost("register"), ]
+        [HttpPost("register"),]
         public async Task<ActionResult<string>> RegisterUser(UserRegisterDto request)
         {
             var randomPassword = CreateRandomPassword(10);
@@ -79,16 +79,17 @@ namespace Project_Management_System.Controllers
                 UserCategoryId = UserCategoryId,
                 RefreshToken = refreshToken,
                 RefreshTokenExpiryTime = DateTime.Now.AddDays(7)
-        };
+            };
 
             // Save the new user to the database
             _dataContext.Users.Add(newUser);
             _dataContext.SaveChanges();
 
-            return (randomPassword);
-            // await SendPasswordEmail(request.Email,request.UserName, randomPassword);
+            //return (randomPassword);
 
-           // return Ok(new { message = "User registered successfully. Email sent with password." });
+            // await SendPasswordEmail(request.Email, request.UserName, randomPassword);
+
+            return Ok(new { message = "User registered successfully. Email sent with password." });
 
         }
 
