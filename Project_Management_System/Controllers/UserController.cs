@@ -125,6 +125,8 @@ namespace Project_Management_System.Controllers
             return Ok(new { message = "Developer added" });
         }
 
+       
+
         [HttpGet("{id:int}")]
         public async Task<ActionResult<ViewUserDetailDto>> GetById(int id)
         {
