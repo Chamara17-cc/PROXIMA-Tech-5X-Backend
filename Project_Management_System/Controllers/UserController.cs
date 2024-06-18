@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using MimeKit;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.X9;
-using Project_Management_System.Configuration;
 using Project_Management_System.Data;
 using Project_Management_System.DTOs;
 using Project_Management_System.Models;
@@ -20,16 +19,13 @@ namespace Project_Management_System.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
         private readonly DataContext _dataContext;
         private readonly IMapper _mapper;
-        //private readonly MailSettings _mailSettings;
-        public UserController(IConfiguration configuration, DataContext dataContext, IMapper mapper)
-        {
-            _configuration = configuration;
+       
+        public UserController( DataContext dataContext, IMapper mapper)
+        {         
             _dataContext = dataContext;
             _mapper = mapper;
-            // _mailSettings = mailSettings;
         }
 
 
@@ -84,11 +80,8 @@ namespace Project_Management_System.Controllers
             _dataContext.Users.Add(newUser);
             _dataContext.SaveChanges();
 
-
-
             return (randomPassword);
-            //await SendPasswordEmail(request.Email, request.UserName, randomPassword);
-            //return Ok(new { message = "User registered successfully", randomPassword }); ;
+            //return Ok(new { message = "User registered successfully", randomPassword }); 
 
         }
 
@@ -215,67 +208,7 @@ namespace Project_Management_System.Controllers
         }
 
        
-
-    /* private async Task SendPasswordEmail(string userEmail, string userName, string password)
-     {
-         try
-         {
-             using var client = new MailKit.Net.Smtp.SmtpClient();
-             await client.ConnectAsync(_mailSettings.Server, _mailSettings.Port, false);
-             await client.AuthenticateAsync(_mailSettings.UserName, _mailSettings.Password);
-
-             var message = new MimeMessage();
-             message.From.Add(new MailboxAddress(_mailSettings.SenderName, _mailSettings.SenderEmail));
-             message.To.Add(new MailboxAddress(userEmail, userEmail)); // Use email address as both name and address
-             message.Subject = "Your Password";
-
-             // Include the user's name in the email body
-             var text = $"Dear {userName},\n\nYour password is: {password}";
-             message.Body = new TextPart("plain")
-             {
-                 Text = text
-             };
-
-
-             await client.SendAsync(message);
-             await client.DisconnectAsync(true);
-
-             // Save the mail data to your database
-             var mailData = new MailData
-             {
-                 EmailToId = userEmail,
-                 EmailToName = userName,
-                 EmailSubject = "Your Password",
-                 EmailBody = text
-             };
-             _dataContext.MailData.Add(mailData);
-             await _dataContext.SaveChangesAsync();
-         }
-         catch (Exception ex)
-         {
-             // Log or handle the exception as needed
-             Console.WriteLine($"Error sending email: {ex.Message}");
-             throw;
-         }
-     }*/
-
-
-    /*  public async Task<IActionResult> RegisterUserAndSendEmail(UserRegisterDto userDto)
-      {
-          var result = await RegisterUser(userDto); // Register the user and get the ActionResult<string>
-          if (result.Result is BadRequestObjectResult badRequest)
-          {
-              // Handle bad request if needed
-              return BadRequest(badRequest.Value);
-          }
-          var randomPassword = result.Value; // Extract the string value from ActionResult<string>
-          await SendPasswordEmail(userDto.Email, userDto.UserName, randomPassword); // Send email to the user with the password
-          return Ok("User registered successfully, and email sent with password."); // Return OK status
-      }
-*/
-
-
-}
+    }
 }
 
 
