@@ -32,7 +32,7 @@ namespace Project_Management_System.Controllers
         }
 
         [HttpPost("login")]
-        public ActionResult<AuthenticationResponseDto> Login(UserLoginDto request)
+        public async Task<ActionResult<AuthenticationResponseDto>> Login(UserLoginDto request)
         {
             // Retrieve user data from the database
             User user = _dataContext.Users.FirstOrDefault(u => u.UserName == request.UserName);
@@ -41,6 +41,11 @@ namespace Project_Management_System.Controllers
             if (user == null)
             {
                 return BadRequest(new { message = "Enter valid User name." });
+            }
+
+            if(user.IsActive ==  false)
+            {
+                return BadRequest(new { message = "Hi! You cann't login to the System." });
             }
 
             // Check if the user's password hash is not null
@@ -79,11 +84,18 @@ namespace Project_Management_System.Controllers
 
             _dataContext.SaveChanges();
 
+            //Set the Last loginDate
+            user.LastLoginDate = DateTime.Now;
+            _dataContext.Users.Update(user);
+            await _dataContext.SaveChangesAsync();
+
             var response = new AuthenticationResponseDto
             {
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
             };
+
+            
 
             return Ok(response);
         }
@@ -110,6 +122,7 @@ namespace Project_Management_System.Controllers
             _logger.LogInformation("Refresh token invalidated successfully: {Token}", request.RefreshToken);
             return Ok(new { message = "Logout successful" });
         }
+
         [HttpPost("refresh")]
         public ActionResult<AuthenticationResponseDto> Refresh(TokenRefreshRequestDto request)
         {
