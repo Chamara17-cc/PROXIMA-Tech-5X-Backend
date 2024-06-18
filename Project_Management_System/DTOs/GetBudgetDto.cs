@@ -2,6 +2,7 @@
 {
     public class GetBudgetDto
     {
+        public int BudgetId { get; set; }
         public string Objectives { get; set; } = string.Empty;
         public double SelectionprocessCost { get; set; }
         public double LicenseCost { get; set; }
@@ -13,6 +14,7 @@
         public double TotalCost { get; set; }
 
         public int ProjectId { get; set; }
+        public string ProjectName { get; set; }
         public DateTime Date { get; set; }
     }
 }
