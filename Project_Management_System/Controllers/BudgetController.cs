@@ -70,26 +70,47 @@ namespace Project_Management_System.Controllers
 
 
         [HttpGet("register/Projects/{projectid}")]
-      //  [Authorize(Roles = "1")]
+        // [Authorize(Roles = "1")]
         public async Task<ActionResult<List<GetBudgetDto>>> GetBudget(int projectid)
         {
             try
             {
-                var Projectid = await _budgetdatacontext.Projects.FindAsync(projectid);
-                if (Projectid == null)
+                var project = await _budgetdatacontext.Projects.FindAsync(projectid);
+                if (project == null)
                 {
                     return NotFound();
                 }
-                var budgetdata = await _budgetdatacontext.Budgets.Where(b => b.ProjectId == projectid).ToListAsync();
-                var getbudgetlist = _mapper.Map<List<GetBudgetDto>>(budgetdata);
+
+                var budgetdata = await _budgetdatacontext.Budgets
+                    .Where(b => b.ProjectId == projectid)
+                    .ToListAsync();
+
+                var getbudgetlist = budgetdata.Select(b => new GetBudgetDto
+                {
+                    BudgetId=b.BudgetId,
+                    Objectives = b.Objectives,
+                    SelectionprocessCost = b.SelectionprocessCost,
+                    LicenseCost = b.LicenseCost,
+                    ServersCost = b.ServersCost,
+                    HardwareCost = b.HardwareCost,
+                    ConnectionCost = b.ConnectionCost,
+                    DeveloperCost = b.DeveloperCost,
+                    OtherExpenses = b.OtherExpenses,
+                    TotalCost = b.TotalCost,
+                    ProjectId = b.ProjectId,
+                    ProjectName = project.ProjectName, // Manually map the ProjectName from the project entity
+                    Date = b.Date
+                }).ToList();
+
                 return Ok(getbudgetlist);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "An error occurred while processing the request."+ex);
+                return StatusCode(500, "An error occurred while processing the request. " + ex);
             }
         }
-            
+
+
         [HttpPut("Projects/{projectid}/register")]
       //  [Authorize(Roles = "1")]
         public async Task<ActionResult<List<UpdateBudgetDto>>> UpdateBudget(int projectid, [FromBody] UpdateBudgetDto updatebudget)
@@ -158,6 +179,22 @@ namespace Project_Management_System.Controllers
             {
                 return StatusCode(500, "An error occurred while processing the request.");
             }
+        }
+
+        [HttpDelete]
+        //  [Authorize(Roles = "1")]
+        public async Task<ActionResult> DeleteBudget(int projectid)
+        {
+            var budgetreport = await _budgetdatacontext.Budgets.FirstOrDefaultAsync(p => p.ProjectId == projectid);
+            if (budgetreport == null)
+            {
+                return NotFound("budget not found");
+            }
+
+            _budgetdatacontext.Budgets.Remove(budgetreport);
+            await _budgetdatacontext.SaveChangesAsync();
+
+            return NoContent();
         }
 
 

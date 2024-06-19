@@ -2,13 +2,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MimeKit;
 using Org.BouncyCastle.Asn1.Pkcs;
-using Project_Management_System.Configuration;
+using Org.BouncyCastle.Asn1.X9;
 using Project_Management_System.Data;
 using Project_Management_System.DTOs;
 using Project_Management_System.Models;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace Project_Management_System.Controllers
@@ -17,16 +19,13 @@ namespace Project_Management_System.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
         private readonly DataContext _dataContext;
         private readonly IMapper _mapper;
-        //private readonly MailSettings _mailSettings;
-        public UserController(IConfiguration configuration, DataContext dataContext, IMapper mapper)
-        {
-            _configuration = configuration;
+       
+        public UserController( DataContext dataContext, IMapper mapper)
+        {         
             _dataContext = dataContext;
             _mapper = mapper;
-            // _mailSettings = mailSettings;
         }
 
         [HttpPost("register")]
@@ -50,7 +49,6 @@ namespace Project_Management_System.Controllers
             int UserCategoryId = userCategory.UserCategoryId;
 
             var jobRole = _dataContext.JobRoles.FirstOrDefault(jr => jr.JobRoleType == request.JobRoleType);
-
             if (jobRole == null)
             {
                 return BadRequest(new { message = "Invalid jobRoleType" });
@@ -58,7 +56,6 @@ namespace Project_Management_System.Controllers
 
             int JobRoleId = jobRole.JobRoleId;
 
-            // Assuming you have a User model and a database context
             User newUser = new User
             {
                 UserName = request.UserName,
@@ -69,25 +66,65 @@ namespace Project_Management_System.Controllers
                 Gender = request.Gender,
                 NIC = request.NIC,
                 DOB = request.DOB,
-                // ProfilePictureLink = request.ProfilePictureLink,
                 ContactNumber = request.ContactNumber,
                 Email = request.Email,
                 JobRoleId = JobRoleId,
                 UserCategoryId = UserCategoryId
             };
 
-            // Save the new user to the database
             _dataContext.Users.Add(newUser);
-            _dataContext.SaveChanges();
+            await _dataContext.SaveChangesAsync();
+
 
             //return (randomPassword);
 
             // await SendPasswordEmail(request.Email, request.UserName, randomPassword);
 
 
-            return Ok(new { message = "User registered successfully. Email sent with password." });
+            // Get the newly created user's UserId
+            int newUserId = newUser.UserId;
 
+
+            // Add the UserId to the relevant table based on UserCategoryType
+            switch (request.UserCategoryType)
+            {
+                case "Admin":
+                    var newAdmin = new Admin
+                    {
+                        AdminId = newUserId,
+                        // Other Admin-specific properties can be set here if needed
+                    };
+                    _dataContext.Admins.Add(newAdmin);
+                    break;
+
+                case "Manager":
+                    var newProjectManager = new ProjectManager
+                    {
+                        ProjectManagerId = newUserId,
+                        // Other ProjectManager-specific properties can be set here if needed
+                    };
+                    _dataContext.ProjectManagers.Add(newProjectManager);
+                    break;
+
+                case "Developer":
+                    var newDeveloper = new Developer
+                    {
+                        DeveloperId = newUserId,
+                        FinanceReceiptId = 1,
+                        TotalDeveloperWorkingHours = 0,
+                        // Other Developer-specific properties can be set here if needed
+                    };
+                    _dataContext.Developers.Add(newDeveloper);
+                    break;
+
+                    // Add other cases for different user categories if needed
+            }
+
+            await _dataContext.SaveChangesAsync();
+
+            return randomPassword;
         }
+
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<ViewUserDetailDto>> GetById(int id)
@@ -143,12 +180,55 @@ namespace Project_Management_System.Controllers
             return Ok(viewUserListDtos);
         }
 
+        [HttpPost("deactivate-user")]
+        public async Task<IActionResult> DeactivateUser([FromBody] DeactivateUserDto request)
+        {
+            // Fetch the user from the database using the username
+            var user = _dataContext.Users.FirstOrDefault(u => u.UserId == request.UserId);
+
+            // Check if the user exists
+            if (user == null)
+            {
+                return BadRequest(new { message = "User not found." });
+            }
+
+            if (user.IsActive == false)
+            {
+                return BadRequest(new { message = "User already deactivated from the system." });
+            }
+
+            user.IsActive = false;
+
+            // Save the changes to the database
+            _dataContext.Users.Update(user);
+            await _dataContext.SaveChangesAsync();
+
+            return Ok(new { message = "User successfully deactivate.!"});
+        }
 
         [HttpGet("search")]
-        public ActionResult<List<User>> SearchUsers([FromQuery] string term)
+        public ActionResult<List<ViewUserListDto>> SearchUsers([FromQuery] string term)
         {
+            // If the term is empty, return a bad request
+            if (string.IsNullOrWhiteSpace(term))
+            {
+                return BadRequest(new { message = "Search term cannot be empty" });
+            }
+
+            // Convert term to lowercase for case-insensitive comparison
+            term = term.ToLower();
+
             var users = _dataContext.Users
-                .Where(u => u.UserId.ToString().Contains(term) || u.UserName.Contains(term))
+                .Where(u => u.UserId.ToString().ToLower().Contains(term) ||
+                            u.UserName.ToLower().Contains(term) ||
+                            u.UserCategory.UserCategoryType.ToLower().Contains(term))
+                .Select(u => new ViewUserListDto
+                {
+                    UserId = u.UserId,
+                    UserName = u.UserName,
+                    Email = u.Email,
+                    UserCategoryType = u.UserCategory.UserCategoryType
+                })
                 .ToList();
 
             if (users == null || users.Count == 0)
@@ -158,6 +238,7 @@ namespace Project_Management_System.Controllers
 
             return Ok(users);
         }
+
 
 
         public static string CreateRandomPassword(int PasswordLength)
@@ -173,67 +254,7 @@ namespace Project_Management_System.Controllers
             return new string(chars);
         }
 
-
-
-        /* private async Task SendPasswordEmail(string userEmail, string userName, string password)
-         {
-             try
-             {
-                 using var client = new MailKit.Net.Smtp.SmtpClient();
-                 await client.ConnectAsync(_mailSettings.Server, _mailSettings.Port, false);
-                 await client.AuthenticateAsync(_mailSettings.UserName, _mailSettings.Password);
-
-                 var message = new MimeMessage();
-                 message.From.Add(new MailboxAddress(_mailSettings.SenderName, _mailSettings.SenderEmail));
-                 message.To.Add(new MailboxAddress(userEmail, userEmail)); // Use email address as both name and address
-                 message.Subject = "Your Password";
-
-                 // Include the user's name in the email body
-                 var text = $"Dear {userName},\n\nYour password is: {password}";
-                 message.Body = new TextPart("plain")
-                 {
-                     Text = text
-                 };
-
-
-                 await client.SendAsync(message);
-                 await client.DisconnectAsync(true);
-
-                 // Save the mail data to your database
-                 var mailData = new MailData
-                 {
-                     EmailToId = userEmail,
-                     EmailToName = userName,
-                     EmailSubject = "Your Password",
-                     EmailBody = text
-                 };
-                 _dataContext.MailData.Add(mailData);
-                 await _dataContext.SaveChangesAsync();
-             }
-             catch (Exception ex)
-             {
-                 // Log or handle the exception as needed
-                 Console.WriteLine($"Error sending email: {ex.Message}");
-                 throw;
-             }
-         }*/
-
-
-        /*  public async Task<IActionResult> RegisterUserAndSendEmail(UserRegisterDto userDto)
-          {
-              var result = await RegisterUser(userDto); // Register the user and get the ActionResult<string>
-              if (result.Result is BadRequestObjectResult badRequest)
-              {
-                  // Handle bad request if needed
-                  return BadRequest(badRequest.Value);
-              }
-              var randomPassword = result.Value; // Extract the string value from ActionResult<string>
-              await SendPasswordEmail(userDto.Email, userDto.UserName, randomPassword); // Send email to the user with the password
-              return Ok("User registered successfully, and email sent with password."); // Return OK status
-          }
-  */
-
-
+       
     }
 }
 

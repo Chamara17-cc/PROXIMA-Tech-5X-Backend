@@ -6,7 +6,6 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Project_Management_System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,9 +67,6 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("RequireManagerRole", policy => policy.RequireRole("MANAGER"));
     options.AddPolicy("RequireDeveloperRole", policy => policy.RequireRole("DEVELOPER"));
 });
-
-
-builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 
 // Access configuration
 var configuration = builder.Configuration;
