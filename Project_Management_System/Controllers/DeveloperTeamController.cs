@@ -96,6 +96,73 @@ namespace Project_Management_System.Controllers
 
 
 
+        [HttpGet("DeveloperDescription/{developerid}")]
+        public async Task<ActionResult<IEnumerable<GetTeamDetailsDTO>>> GetDeveloperDetails(int developerid)
+        {
+
+
+            var developer = await _context.Users
+                .Where(p => p.UserId == developerid)
+                 .Select(p => p.FirstName + " " + p.LastName)
+                .ToListAsync();
+
+
+
+
+
+            if (developer == null)
+            {
+                Console.WriteLine("Developer details does not exist");
+            }
+
+
+
+            return Ok(developer);
+
+        }
+
+
+
+        [HttpGet]
+        [Route("GetDevelopeTotalTaskCount/{developerid}")]
+        public async Task<ActionResult<int>> GetDevelopeTotalTaskCount(int developerid)
+        {
+            try
+            {
+                var count = await _context.Tasks
+                    .CountAsync(t => t.DeveloperId == developerid);
+                return Ok(count);
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
+
+        [HttpGet]
+        [Route("GetDevelopeTotalProjectCount/{developerid}")]
+        public async Task<ActionResult<int>> GetDevelopeTotalProjectCount(int developerid)
+        {
+            try
+            {
+                var count = await _context.DeveloperProjects
+                    .CountAsync(t => t.DeveloperId == developerid);
+                return Ok(count);
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
+
+
+
 
 
 
