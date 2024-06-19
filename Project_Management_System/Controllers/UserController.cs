@@ -69,14 +69,21 @@ namespace Project_Management_System.Controllers
                 ContactNumber = request.ContactNumber,
                 Email = request.Email,
                 JobRoleId = JobRoleId,
-                UserCategoryId = UserCategoryId,
+                UserCategoryId = UserCategoryId
             };
 
             _dataContext.Users.Add(newUser);
             await _dataContext.SaveChangesAsync();
 
+
+            //return (randomPassword);
+
+            // await SendPasswordEmail(request.Email, request.UserName, randomPassword);
+
+
             // Get the newly created user's UserId
             int newUserId = newUser.UserId;
+
 
             // Add the UserId to the relevant table based on UserCategoryType
             switch (request.UserCategoryType)
