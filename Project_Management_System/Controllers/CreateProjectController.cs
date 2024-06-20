@@ -20,7 +20,7 @@ namespace Project_Management_System.Controllers
         public async Task<ActionResult<List<Project>>> Create(ProjectDto request)
         {
 
-            int loggedAdminId = 1;
+            int loggedAdminId = 2;
 
             
 

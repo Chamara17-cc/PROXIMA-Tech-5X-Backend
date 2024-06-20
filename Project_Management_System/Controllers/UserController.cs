@@ -79,10 +79,10 @@ namespace Project_Management_System.Controllers
             _dataContext.Users.Add(newUser);
             _dataContext.SaveChanges();
 
-            // return (randomPassword);
+             return (randomPassword);
             // await SendPasswordEmail(request.Email,request.UserName, randomPassword);
 
-            return Ok(new { message = "User registered successfully. Email sent with password." });
+            //return Ok(new { message = "User registered successfully. Email sent with password." });
 
         }
 
