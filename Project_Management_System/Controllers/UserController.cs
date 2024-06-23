@@ -199,6 +199,32 @@ namespace Project_Management_System.Controllers
             return Ok(new { message = "User successfully deactivate.!"});
         }
 
+        [HttpPost("reactivate-user")]
+        public async Task<IActionResult> ReactivateUser([FromBody] ReactivateUserDto request)
+        {
+            // Fetch the user from the database using the username
+            var user = _dataContext.Users.FirstOrDefault(u => u.UserId == request.UserId);
+
+            // Check if the user exists
+            if (user == null)
+            {
+                return BadRequest(new { message = "User not found." });
+            }
+
+            if (user.IsActive == true)
+            {
+                return BadRequest(new { message = "User already reactivated from the system." });
+            }
+
+            user.IsActive = true;
+
+            // Save the changes to the database
+            _dataContext.Users.Update(user);
+            await _dataContext.SaveChangesAsync();
+
+            return Ok(new { message = "User successfully reactivate.!" });
+        }
+
         [HttpGet("search")]
         public ActionResult<List<ViewUserListDto>> SearchUsers([FromQuery] string term)
         {
