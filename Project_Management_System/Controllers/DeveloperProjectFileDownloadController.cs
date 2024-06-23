@@ -28,7 +28,7 @@ namespace Project_Management_System.Controllers
         public async Task<IActionResult> DownloadDeveloperFile(string filepath, string filename)
         {
 
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "/Users/pabodyaubeywickrama/Desktop/ProjectFiles", filepath);
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "D:\\Fileresources\\ProjectFiles", filepath);
 
             var provider = new FileExtensionContentTypeProvider();
             if (!provider.TryGetContentType(filePath, out var contentType))
