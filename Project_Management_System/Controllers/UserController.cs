@@ -28,7 +28,6 @@ namespace Project_Management_System.Controllers
             _mapper = mapper;
         }
 
-
         [HttpPost("register")]
         public async Task<ActionResult<string>> RegisterUser(UserRegisterDto request)
         {
@@ -50,7 +49,6 @@ namespace Project_Management_System.Controllers
             int UserCategoryId = userCategory.UserCategoryId;
 
             var jobRole = _dataContext.JobRoles.FirstOrDefault(jr => jr.JobRoleType == request.JobRoleType);
-
             if (jobRole == null)
             {
                 return BadRequest(new { message = "Invalid jobRoleType" });
@@ -58,7 +56,6 @@ namespace Project_Management_System.Controllers
 
             int JobRoleId = jobRole.JobRoleId;
 
-            // Assuming you have a User model and a database context
             User newUser = new User
             {
                 UserName = request.UserName,
@@ -69,61 +66,65 @@ namespace Project_Management_System.Controllers
                 Gender = request.Gender,
                 NIC = request.NIC,
                 DOB = request.DOB,
-                // ProfilePictureLink = request.ProfilePictureLink,
                 ContactNumber = request.ContactNumber,
                 Email = request.Email,
                 JobRoleId = JobRoleId,
-                UserCategoryId = UserCategoryId,
+                UserCategoryId = UserCategoryId
             };
 
-            // Save the new user to the database
             _dataContext.Users.Add(newUser);
-            _dataContext.SaveChanges();
-
-            return (randomPassword);
-            //return Ok(new { message = "User registered successfully", randomPassword }); 
-
-        }
-
-        [HttpPost("admin")]
-        public async Task<ActionResult<Admin>> AddAdmin(AdminDTO request)
-        {
-            var newAdmin = new Admin
-            {
-                AdminId = request.AdminId
-            };
-            _dataContext.Add(newAdmin);
             await _dataContext.SaveChangesAsync();
-            return Ok();
-        }
 
-        [HttpPost("projectManager")]
-        public async Task<ActionResult<ProjectManager>> AddPManager(PmDTO request)
-        {
-            var newProjectM = new ProjectManager
+
+            //return (randomPassword);
+
+            // await SendPasswordEmail(request.Email, request.UserName, randomPassword);
+
+
+            // Get the newly created user's UserId
+            int newUserId = newUser.UserId;
+
+
+            // Add the UserId to the relevant table based on UserCategoryType
+            switch (request.UserCategoryType)
             {
-                ProjectManagerId = request.ProjectManagerId
-            };
+                case "Admin":
+                    var newAdmin = new Admin
+                    {
+                        AdminId = newUserId,
+                        // Other Admin-specific properties can be set here if needed
+                    };
+                    _dataContext.Admins.Add(newAdmin);
+                    break;
 
-            _dataContext.Add(newProjectM);
+                case "Manager":
+                    var newProjectManager = new ProjectManager
+                    {
+                        ProjectManagerId = newUserId,
+                        // Other ProjectManager-specific properties can be set here if needed
+                    };
+                    _dataContext.ProjectManagers.Add(newProjectManager);
+                    break;
+
+                case "Developer":
+                    var newDeveloper = new Developer
+                    {
+                        DeveloperId = newUserId,
+                        FinanceReceiptId = 1,
+                        TotalDeveloperWorkingHours = 0,
+                        // Other Developer-specific properties can be set here if needed
+                    };
+                    _dataContext.Developers.Add(newDeveloper);
+                    break;
+
+                    // Add other cases for different user categories if needed
+            }
+
             await _dataContext.SaveChangesAsync();
-            return Ok();
+
+            return randomPassword;
         }
 
-        [HttpPost("developer")]
-        public async Task<ActionResult<Developer>> AddDeveloper(DevDTO request)
-        {
-            var newDev = new Developer
-            {
-                DeveloperId = request.DeveloperId,
-                FinanceReceiptId = request.FinanceReceiptId,
-                TotalDeveloperWorkingHours = 0
-            };
-
-            _dataContext.Add(newDev);
-            await _dataContext.SaveChangesAsync();
-            return Ok(new { message = "Developer added" });
-        }
 
        
 
@@ -181,11 +182,81 @@ namespace Project_Management_System.Controllers
             return Ok(viewUserListDtos);
         }
 
-        [HttpGet("search")]
-        public ActionResult<List<User>> SearchUsers([FromQuery] string term)
+        [HttpPost("deactivate-user")]
+        public async Task<IActionResult> DeactivateUser([FromBody] DeactivateUserDto request)
         {
+            // Fetch the user from the database using the username
+            var user = _dataContext.Users.FirstOrDefault(u => u.UserId == request.UserId);
+
+            // Check if the user exists
+            if (user == null)
+            {
+                return BadRequest(new { message = "User not found." });
+            }
+
+            if (user.IsActive == false)
+            {
+                return BadRequest(new { message = "User already deactivated from the system." });
+            }
+
+            user.IsActive = false;
+
+            // Save the changes to the database
+            _dataContext.Users.Update(user);
+            await _dataContext.SaveChangesAsync();
+
+            return Ok(new { message = "User successfully deactivate.!"});
+        }
+
+        [HttpPost("reactivate-user")]
+        public async Task<IActionResult> ReactivateUser([FromBody] ReactivateUserDto request)
+        {
+            // Fetch the user from the database using the username
+            var user = _dataContext.Users.FirstOrDefault(u => u.UserId == request.UserId);
+
+            // Check if the user exists
+            if (user == null)
+            {
+                return BadRequest(new { message = "User not found." });
+            }
+
+            if (user.IsActive == true)
+            {
+                return BadRequest(new { message = "User already reactivated from the system." });
+            }
+
+            user.IsActive = true;
+
+            // Save the changes to the database
+            _dataContext.Users.Update(user);
+            await _dataContext.SaveChangesAsync();
+
+            return Ok(new { message = "User successfully reactivate.!" });
+        }
+
+        [HttpGet("search")]
+        public ActionResult<List<ViewUserListDto>> SearchUsers([FromQuery] string term)
+        {
+            // If the term is empty, return a bad request
+            if (string.IsNullOrWhiteSpace(term))
+            {
+                return BadRequest(new { message = "Search term cannot be empty" });
+            }
+
+            // Convert term to lowercase for case-insensitive comparison
+            term = term.ToLower();
+
             var users = _dataContext.Users
-                .Where(u => u.UserId.ToString().Contains(term) || u.UserName.Contains(term))
+                .Where(u => u.UserId.ToString().ToLower().Contains(term) ||
+                            u.UserName.ToLower().Contains(term) ||
+                            u.UserCategory.UserCategoryType.ToLower().Contains(term))
+                .Select(u => new ViewUserListDto
+                {
+                    UserId = u.UserId,
+                    UserName = u.UserName,
+                    Email = u.Email,
+                    UserCategoryType = u.UserCategory.UserCategoryType
+                })
                 .ToList();
 
             if (users == null || users.Count == 0)
@@ -195,6 +266,8 @@ namespace Project_Management_System.Controllers
 
             return Ok(users);
         }
+
+
 
         public static string CreateRandomPassword(int PasswordLength)
         {
