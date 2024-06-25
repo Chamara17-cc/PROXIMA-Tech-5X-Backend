@@ -126,6 +126,8 @@ namespace Project_Management_System.Controllers
         }
 
 
+       
+
         [HttpGet("{id:int}")]
         public async Task<ActionResult<ViewUserDetailDto>> GetById(int id)
         {
