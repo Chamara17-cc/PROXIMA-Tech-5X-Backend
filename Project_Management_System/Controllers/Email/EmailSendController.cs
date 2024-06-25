@@ -6,6 +6,7 @@ using MimeKit;
 using Project_Management_System.Data;
 using MailKit.Net.Smtp;
 using Project_Management_System.Models;
+using System.Xml.Linq;
 
 namespace Project_Management_System.Controllers.Email
 {
@@ -38,45 +39,35 @@ namespace Project_Management_System.Controllers.Email
                 adminName = null;
             }
 
-
+            string pManager;
             string receiver;
-            User UserEmail = _context.Users
+
+            User user = _context.Users
                 .Where(x => x.UserId == PmId)
                 .FirstOrDefault();
 
-            if (UserEmail != null)
+            if (user != null)
             {
-                receiver = UserEmail.Email;
+                receiver = user.Email;
+                pManager = user.UserName;
             }
             else
             {
-                receiver = null; 
-            }
-
-
-            string pManager;
-            User PmName = _context.Users
-                .Where(x => x.UserId == adminId)
-                .FirstOrDefault();
-
-            if (PmName != null)
-            {
-                pManager = PmName.UserName;
-            }
-            else
-            {
+                receiver = null;
                 pManager = null;
             }
+        
+    
 
             DateTime date = DateTime.Now;
 
-             string body = "<h4>Dear " + pManager +",</h4><p>You have been assigned for a new project. Please check Proxima account for more info.</p><br><p>Project Name: " + projectName + "</p><p>Created Date: " + date + "</p><h4>Sincely,<br>" + adminName + "<br>Admin Division</h4>";
+             string body = "<h4>Dear " + pManager +",</h4><p>You have been assigned for a new project. Please check Proxima account for more info.</p><br><p>Project Name: " + projectName + "</p><p>Created Date: " + date + "</p><br><h4>Sincely,<br>" + adminName + "<br>Admin Division</h4>";
 
              var email = new MimeMessage();
              email.From.Add(MailboxAddress.Parse("surajmshan1234@gmail.com"));
              email.To.Add(MailboxAddress.Parse("surajmshan@gmail.com"));
 
-             email.Subject = "New Project Assignment";
+             email.Subject = "Proxima-New Project Assignment";
              email.Body = new TextPart(TextFormat.Html) { Text = body };
 
              using var smtp = new SmtpClient();
@@ -89,74 +80,65 @@ namespace Project_Management_System.Controllers.Email
 
         }
 
-       /* [HttpPost("DeveloperAssign")]
-        public IActionResult SendEmailtoDev(int adminId, int PmId, string projectName)
+        [HttpPost("DeveloperAssign")]
+        public IActionResult SendEmailtoDev(int[] devId, int projectId)
         {
 
-            string adminName;
-            User adName = _context.Users
-                .Where(x => x.UserId == adminId)
+            string ProjectName;
+            Project name = _context.Projects
+                .Where(x => x.ProjectId == projectId)
                 .FirstOrDefault();
 
-            if (adName != null)
+            if (name != null)
             {
-                adminName = adName.Email;
+                ProjectName = name.ProjectName;
             }
             else
             {
-                adminName = null;
+                ProjectName = null;
             }
-
-
-            string receiver;
-            User UserEmail = _context.Users
-                .Where(x => x.UserId == PmId)
-                .FirstOrDefault();
-
-            if (UserEmail != null)
-            {
-                receiver = UserEmail.Email;
-            }
-            else
-            {
-                receiver = null;
-            }
-
-
-            string pManager;
-            User PmName = _context.Users
-                .Where(x => x.UserId == adminId)
-                .FirstOrDefault();
-
-            if (PmName != null)
-            {
-                pManager = PmName.UserName;
-            }
-            else
-            {
-                pManager = null;
-            }
-
+          
+            int x = devId.Length;
             DateTime date = DateTime.Now;
 
-            string body = "<h4>Dear " + pManager + ",</h4><p>You have been assigned for a new project. Please check Proxima account for more info.</p><br><p>Project Name: " + projectName + "</p><p>Created Date: " + date + "</p><h4>Sincely,<br>" + adminName + "<br>Admin Division</h4>";
+            for (int i = 0; i < x; i++)
+            {
+                string developer;
+                string developerEmail;
 
-            var email = new MimeMessage();
-            email.From.Add(MailboxAddress.Parse("surajmshan1234@gmail.com"));
-            email.To.Add(MailboxAddress.Parse("surajmshan@gmail.com"));
+                User dev = _context.Users
+                    .Where(x => x.UserId == devId[i])
+                .FirstOrDefault();
 
-            email.Subject = "New Project Assignment";
-            email.Body = new TextPart(TextFormat.Html) { Text = body };
+                if (dev != null)
+                {
+                    developer = dev.UserName;
+                    developerEmail = dev.Email;
+                }
+                else
+                {
+                    developer = null;
+                    developerEmail = null;
+                }
 
-            using var smtp = new SmtpClient();
-            smtp.Connect("smtp.gmail.com", 465, SecureSocketOptions.SslOnConnect);
-            smtp.Authenticate("surajmshan1234@gmail.com", "zkvzwrfytxbjfdra");
-            smtp.Send(email);
-            smtp.Disconnect(true);
+                string body = "<h4>Dear " + developer + ",</h4><p>You have been assigned for a new project. Please check Proxima account for more info.</p><br><p>Project Name: " + ProjectName + "</p><p>Created Date: " + date + "</p><br><h4>Admin Division</h4>";
 
-            return Ok();
+                var email = new MimeMessage();
+                email.From.Add(MailboxAddress.Parse("surajmshan1234@gmail.com"));
+                email.To.Add(MailboxAddress.Parse("surajmshan@gmail.com"));
 
-        }*/
+                email.Subject = "Proxima-New Project Assignment";
+                email.Body = new TextPart(TextFormat.Html) { Text = body };
+
+                using var smtp = new SmtpClient();
+                smtp.Connect("smtp.gmail.com", 465, SecureSocketOptions.SslOnConnect);
+                smtp.Authenticate("surajmshan1234@gmail.com", "zkvzwrfytxbjfdra");
+                smtp.Send(email);
+                smtp.Disconnect(true);
+            }
+            return Ok(new { message = ProjectName });
+
+        }
 
     }
 }

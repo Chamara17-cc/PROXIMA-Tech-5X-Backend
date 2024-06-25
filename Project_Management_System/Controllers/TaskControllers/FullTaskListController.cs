@@ -1,35 +1,39 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Project_Management_System.Data;
+using Project_Management_System.Models;
+using static Project_Management_System.Controllers.TaskControllers.TaskListController;
 
 namespace Project_Management_System.Controllers.TaskControllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TaskListController : ControllerBase
+    public class FullTaskListController : ControllerBase
     {
         public readonly DataContext _context;
 
-        public TaskListController(DataContext _context)
+        public FullTaskListController(DataContext _context)
         {
             this._context = _context;
         }
 
-        public class TaskListDTO
+        public class FullTaskListDTO
         {
             public int TaskId { get; set; }
             public string TaskName { get; set; }
-            public int TaskStatus { get; set; }
-            public string DeveloperLName { get; set; }
             public string DeveloperFName { get; set; }
+            public string DeveloperLName { get; set; }
+            public int TaskStatus { get; set; }
+
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Models.Task>>> GetTaskList(int ProId, int DevId)
+        public async Task<ActionResult<IEnumerable<Models.Task>>> GetTasks(int ProId)
         {
+
             var tasks = await _context.Tasks
-                .Where(x => x.ProjectId == ProId && x.Developer.DeveloperId == DevId)
-                .Select(x => new TaskListDTO
+                .Where(x => x.ProjectId == ProId)
+                .Select(x => new FullTaskListDTO
                 {
                     TaskId = x.TaskId,
                     TaskName = x.TaskName,
