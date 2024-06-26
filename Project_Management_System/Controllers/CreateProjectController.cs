@@ -17,10 +17,10 @@ namespace Project_Management_System.Controllers
         }
 
         [HttpPost]      //  https://localhost:44339/api/CreateProject
-        public async Task<ActionResult<List<Project>>> Create(ProjectDto request)
+        public async Task<ActionResult<List<Project>>> Create(ProjectDto request,int id)
         {
 
-            int loggedAdminId = 1;
+            int loggedAdminId = id;
 
             
 
