@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using MimeKit;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.X9;
@@ -21,15 +22,17 @@ namespace Project_Management_System.Controllers
     {
         private readonly DataContext _dataContext;
         private readonly IMapper _mapper;
-       
-        public UserController( DataContext dataContext, IMapper mapper)
-        {         
+        private readonly IWebHostEnvironment _hostEnvironment;
+
+        public UserController(DataContext dataContext, IMapper mapper, IWebHostEnvironment hostEnvironment)
+        {
             _dataContext = dataContext;
             _mapper = mapper;
+            this._hostEnvironment = hostEnvironment;
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<string>> RegisterUser(UserRegisterDto request)
+        public async Task<ActionResult<string>> RegisterUser([FromForm] UserRegisterDto request)
         {
             var randomPassword = CreateRandomPassword(10);
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(randomPassword);
@@ -56,6 +59,12 @@ namespace Project_Management_System.Controllers
 
             int JobRoleId = jobRole.JobRoleId;
 
+            string imageName = null;
+            if (request.ImageFile != null)
+            {
+                imageName = await SaveImage(request.ImageFile);
+            }
+
             User newUser = new User
             {
                 UserName = request.UserName,
@@ -70,6 +79,8 @@ namespace Project_Management_System.Controllers
                 Email = request.Email,
                 JobRoleId = JobRoleId,
                 UserCategoryId = UserCategoryId,
+                ProfileImageName = imageName
+
             };
 
             _dataContext.Users.Add(newUser);
@@ -85,7 +96,7 @@ namespace Project_Management_System.Controllers
                     var newAdmin = new Admin
                     {
                         AdminId = newUserId,
-                        // Other Admin-specific properties can be set here if needed
+
                     };
                     _dataContext.Admins.Add(newAdmin);
                     break;
@@ -94,7 +105,7 @@ namespace Project_Management_System.Controllers
                     var newProjectManager = new ProjectManager
                     {
                         ProjectManagerId = newUserId,
-                        // Other ProjectManager-specific properties can be set here if needed
+
                     };
                     _dataContext.ProjectManagers.Add(newProjectManager);
                     break;
@@ -105,19 +116,17 @@ namespace Project_Management_System.Controllers
                         DeveloperId = newUserId,
                         FinanceReceiptId = 1,
                         TotalDeveloperWorkingHours = 0,
-                        // Other Developer-specific properties can be set here if needed
+
                     };
                     _dataContext.Developers.Add(newDeveloper);
                     break;
 
-                    // Add other cases for different user categories if needed
             }
 
             await _dataContext.SaveChangesAsync();
 
             return randomPassword;
         }
-
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<ViewUserDetailDto>> GetById(int id)
@@ -143,7 +152,8 @@ namespace Project_Management_System.Controllers
                 Gender = user.Gender,
                 NIC = user.NIC,
                 DOB = user.DOB,
-                // ProfilePictureLink = user.ProfilePictureLink,
+                ImageSrc = String.Format("{0}://{1}{2}/Images/{3}", Request.Scheme, Request.Host, Request.PathBase, user.ProfileImageName),
+                ProfileImageName = user.ProfileImageName,
                 IsActive = user.IsActive,
                 ContactNumber = user.ContactNumber,
                 Email = user.Email,
@@ -196,7 +206,63 @@ namespace Project_Management_System.Controllers
             _dataContext.Users.Update(user);
             await _dataContext.SaveChangesAsync();
 
-            return Ok(new { message = "User successfully deactivate.!"});
+            return Ok(new { message = "User successfully deactivate.!" });
+        }
+
+        [HttpPost("reactivate-user")]
+        public async Task<IActionResult> ReactivateUser([FromBody] ReactivateUserDto request)
+        {
+            // Fetch the user from the database using the username
+            var user = _dataContext.Users.FirstOrDefault(u => u.UserId == request.UserId);
+
+            // Check if the user exists
+            if (user == null)
+            {
+                return BadRequest(new { message = "User not found." });
+            }
+
+            if (user.IsActive == true)
+            {
+                return BadRequest(new { message = "User already reactivated from the system." });
+            }
+
+            user.IsActive = true;
+
+            // Save the changes to the database
+            _dataContext.Users.Update(user);
+            await _dataContext.SaveChangesAsync();
+
+            return Ok(new { message = "User successfully reactivate.!" });
+        }
+
+        [HttpPut("update/{userId}")]
+        public async Task<ActionResult> UpdateUserProfile(int userId, [FromForm] UserUpdateDto request)
+        {
+            var user = await _dataContext.Users.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found" });
+            }
+
+            // Check if the email is already taken by another user
+            var existingUser = _dataContext.Users.FirstOrDefault(u => u.UserId != userId);
+
+
+            user.Email = request.Email;
+            user.ContactNumber = request.ContactNumber;
+            user.Address = request.Address;
+
+            if (request.ImageFile != null)
+            {
+                // Save new profile image
+                var imageName = await SaveImage(request.ImageFile);
+                user.ProfileImageName = imageName;
+            }
+
+            _dataContext.Users.Update(user);
+            await _dataContext.SaveChangesAsync();
+
+            return Ok(new { message = "Profile updated successfully" });
         }
 
         [HttpGet("search")]
@@ -232,8 +298,6 @@ namespace Project_Management_System.Controllers
             return Ok(users);
         }
 
-
-
         public static string CreateRandomPassword(int PasswordLength)
         {
             string _allowedChars = "0123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ";
@@ -247,7 +311,23 @@ namespace Project_Management_System.Controllers
             return new string(chars);
         }
 
-       
+        [NonAction]
+        public async Task<string> SaveImage(IFormFile imageFile)
+        {
+            string imageName = new String(Path.GetFileNameWithoutExtension(imageFile.FileName).Take(10).ToArray()).Replace(' ', '-');
+            imageName = imageName + DateTime.Now.ToString("yymmssfff") + Path.GetExtension(imageFile.FileName);
+            var imagePath = Path.Combine(_hostEnvironment.ContentRootPath, "Images", imageName);
+            using (var fileStream = new FileStream(imagePath, FileMode.Create))
+            {
+                await imageFile.CopyToAsync(fileStream);
+            }
+            return imageName;
+        }
+
+
+
+
+
     }
 }
 

@@ -11,8 +11,8 @@
         public string Gender { get; set; }
         public DateTime DOB { get; set; }
         public string NIC { get; set; }
-
-        //public string ProfilePictureLink { get; set; }
+        public IFormFile ImageFile { get; set; }
+        public string ProfileImageName { get; set; }
         public string UserCategoryType { get; set; }
         public string JobRoleType { get; set; }
 
