@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
@@ -177,7 +178,8 @@ namespace Project_Management_System.Controllers
                 UserId = user.UserId,
                 UserName = user.UserName,
                 Email = user.Email,
-                UserCategoryType = user.UserCategory != null ? user.UserCategory.UserCategoryType : null
+                UserCategoryType = user.UserCategory != null ? user.UserCategory.UserCategoryType : null,
+                IsActive = user.IsActive
             }).ToList();
 
             return Ok(viewUserListDtos);
@@ -186,53 +188,97 @@ namespace Project_Management_System.Controllers
         [HttpPost("deactivate-user")]
         public async Task<IActionResult> DeactivateUser([FromBody] DeactivateUserDto request)
         {
-            // Fetch the user from the database using the username
-            var user = _dataContext.Users.FirstOrDefault(u => u.UserId == request.UserId);
+            var user = await _dataContext.Users
+                .Include(u => u.UserCategory)
+                .FirstOrDefaultAsync(u => u.UserId == request.UserId);
 
-            // Check if the user exists
             if (user == null)
             {
                 return BadRequest(new { message = "User not found." });
             }
 
-            if (user.IsActive == false)
+            if (!user.IsActive)
             {
                 return BadRequest(new { message = "User already deactivated from the system." });
             }
 
             user.IsActive = false;
 
-            // Save the changes to the database
+            // Remove user from relevant user category table
+            switch (user.UserCategory.UserCategoryType)
+            {
+                case "ADMIN":
+                    var oldAdmin = _dataContext.Admins.FirstOrDefault(a => a.AdminId == user.UserId);
+                    if (oldAdmin != null)
+                    {
+                        _dataContext.Admins.Remove(oldAdmin);
+                        await _dataContext.SaveChangesAsync();
+                    }
+                    break;
+                case "MANAGER":
+                    var oldManager = _dataContext.ProjectManagers.FirstOrDefault(pm => pm.ProjectManagerId == user.UserId);
+                    if (oldManager != null)
+                    {
+                        _dataContext.ProjectManagers.Remove(oldManager);
+                        await _dataContext.SaveChangesAsync();
+                    }
+                    break;
+                case "DEVELOPER":
+                    var oldDeveloper = _dataContext.Developers.FirstOrDefault(d => d.DeveloperId == user.UserId);
+                    if (oldDeveloper != null)
+                    {
+                        _dataContext.Developers.Remove(oldDeveloper);
+                        await _dataContext.SaveChangesAsync();
+                    }
+                    break;
+            }
+
             _dataContext.Users.Update(user);
             await _dataContext.SaveChangesAsync();
 
-            return Ok(new { message = "User successfully deactivate.!" });
+            return Ok(new { message = "User successfully deactivated." });
         }
 
         [HttpPost("reactivate-user")]
         public async Task<IActionResult> ReactivateUser([FromBody] ReactivateUserDto request)
         {
-            // Fetch the user from the database using the username
-            var user = _dataContext.Users.FirstOrDefault(u => u.UserId == request.UserId);
+            var user = await _dataContext.Users
+                .Include(u => u.UserCategory)
+                .FirstOrDefaultAsync(u => u.UserId == request.UserId);
 
-            // Check if the user exists
             if (user == null)
             {
                 return BadRequest(new { message = "User not found." });
             }
 
-            if (user.IsActive == true)
+            if (user.IsActive)
             {
                 return BadRequest(new { message = "User already reactivated from the system." });
             }
 
             user.IsActive = true;
 
-            // Save the changes to the database
+            // Add user back to relevant user category table
+            switch (user.UserCategory.UserCategoryType)
+            {
+                case "ADMIN":
+                    var newAdmin = new Admin { AdminId = user.UserId };
+                    _dataContext.Admins.Add(newAdmin);
+                    break;
+                case "MANAGER":
+                    var newProjectManager = new ProjectManager { ProjectManagerId = user.UserId };
+                    _dataContext.ProjectManagers.Add(newProjectManager);
+                    break;
+                case "DEVELOPER":
+                    var newDeveloper = new Developer { DeveloperId = user.UserId, FinanceReceiptId = 1, TotalDeveloperWorkingHours = 0 };
+                    _dataContext.Developers.Add(newDeveloper);
+                    break;
+            }
+
             _dataContext.Users.Update(user);
             await _dataContext.SaveChangesAsync();
 
-            return Ok(new { message = "User successfully reactivate.!" });
+            return Ok(new { message = "User successfully reactivated." });
         }
 
         [HttpPut("update/{userId}")]
@@ -263,6 +309,80 @@ namespace Project_Management_System.Controllers
             await _dataContext.SaveChangesAsync();
 
             return Ok(new { message = "Profile updated successfully" });
+        }
+
+        [HttpPut("{id}/role")]
+        public async Task<IActionResult> UpdateUserRole(int id, [FromBody] UserRoleUpdateDto model)
+        {
+            var user = await _dataContext.Users
+                .Include(u => u.UserCategory)
+                .Include(u => u.JobRole)
+                .FirstOrDefaultAsync(u => u.UserId == id);
+
+            if (user == null)
+                return NotFound(new { message = "User not found" });
+
+            var oldRole = user.UserCategory.UserCategoryType;
+            if (string.IsNullOrEmpty(oldRole))
+                return BadRequest(new { message = "User has no assigned role" });
+
+            // Update UserCategory
+            var newUserCategory = await _dataContext.UsersCategories
+                .FirstOrDefaultAsync(uc => uc.UserCategoryType == model.UserCategoryType);
+
+            if (newUserCategory == null)
+                return BadRequest(new { message = "Invalid role" });
+
+            user.UserCategoryId = newUserCategory.UserCategoryId;
+            _dataContext.Users.Update(user);
+
+            // Update role-specific tables
+            int userId = user.UserId;
+            switch (oldRole)
+            {
+                case "ADMIN":
+                    var oldAdmin = _dataContext.Admins.FirstOrDefault(a => a.AdminId == userId);
+                    if (oldAdmin != null)
+                    {
+                        _dataContext.Admins.Remove(oldAdmin);
+                    }
+                    break;
+                case "MANAGER":
+                    var oldManager = _dataContext.ProjectManagers.FirstOrDefault(pm => pm.ProjectManagerId == userId);
+                    if (oldManager != null)
+                    {
+                        _dataContext.ProjectManagers.Remove(oldManager);
+                    }
+                    break;
+                case "DEVELOPER":
+                    var oldDeveloper = _dataContext.Developers.FirstOrDefault(d => d.DeveloperId == userId);
+                    if (oldDeveloper != null)
+                    {
+                        _dataContext.Developers.Remove(oldDeveloper);
+                    }
+                    break;
+            }
+            await _dataContext.SaveChangesAsync();
+
+            switch (model.UserCategoryType)
+            {
+                case "ADMIN":
+                    var newAdmin = new Admin { AdminId = userId };
+                    _dataContext.Admins.Add(newAdmin);
+                    break;
+                case "MANAGER":
+                    var newProjectManager = new ProjectManager { ProjectManagerId = userId };
+                    _dataContext.ProjectManagers.Add(newProjectManager);
+                    break;
+                case "DEVELOPER":
+                    var newDeveloper = new Developer { DeveloperId = userId, FinanceReceiptId = 1, TotalDeveloperWorkingHours = 0 };
+                    _dataContext.Developers.Add(newDeveloper);
+                    break;
+            }
+
+            await _dataContext.SaveChangesAsync();
+
+            return Ok(new { message = "User role updated successfully" });
         }
 
         [HttpGet("search")]
