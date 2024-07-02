@@ -1,8 +1,7 @@
 ﻿namespace Project_Management_System.DTOs
 {
-    public class DeactivateUserDto
+    public class UserRoleUpdateDto
     {
-        public int UserId { get; set; }
         public string UserCategoryType { get; set; }
     }
 }
