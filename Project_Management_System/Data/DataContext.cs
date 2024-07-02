@@ -31,7 +31,7 @@ namespace Project_Management_System.Data
         public DbSet<UserCategory> UsersCategories { get; set; }
         public DbSet<JobRole> JobRoles { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
-
+        public DbSet<RefreshTokenClient> RefreshTokenClients { get; set; }
 
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<ViewInvoice> ViewInvoices { get; set; }
