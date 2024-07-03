@@ -42,5 +42,7 @@ namespace Project_Management_System.Data
 
         public DbSet<TaskTime> TaskTimes { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<ClientPayment> ClientPayments { get; set; }
+
     }
 }

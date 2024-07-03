@@ -51,6 +51,7 @@ namespace Project_Management_System.Models
         public Budget Budget { get; set; }
 
         public List<Transaction> Transactions { get; set; }
+        public List<ClientPayment> ClientPayment { get; set; }
 
     }
 }
