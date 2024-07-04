@@ -21,6 +21,10 @@ namespace Project_Management_System.Controllers.ClientSideControllers
             public int ProjectId { get; set; }
             public string ProjectName { get; set; }
             public string ProjectStatus { get; set; }
+            public string? Technologies { get; set; }
+            public DateTime P_StartDate { get; set; }
+            public DateTime P_DueDate { get; set; }
+            public string? ProjectDescription { get; set; }
         }
 
         [HttpGet]
@@ -32,7 +36,10 @@ namespace Project_Management_System.Controllers.ClientSideControllers
                 {
                     ProjectId = c.ProjectId,
                     ProjectName = c.ProjectName,
-                    ProjectStatus = c.ProjectStatus
+                    Technologies = c.Technologies,
+                    P_StartDate = c.P_StartDate,
+                    P_DueDate = c.P_DueDate,
+                    ProjectDescription = c.ProjectDescription
 
                 }).ToListAsync();
 
