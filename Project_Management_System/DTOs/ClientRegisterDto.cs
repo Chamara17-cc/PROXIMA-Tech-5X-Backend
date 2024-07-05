@@ -1,11 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Project_Management_System.Models
+﻿namespace Project_Management_System.DTOs
 {
-    public class Client
+    public class ClientRegisterDto
     {
-        [Key]
-        public int ClientId { get; set; }
         public string ClientName { get; set; }
         public string NIC { get; set; }
         public string? ContactNumber { get; set; }
@@ -14,10 +10,6 @@ namespace Project_Management_System.Models
         public string? ClientDescription { get; set; }
         public double TotalPayment { get; set; }
         public string UserName { get; set; }
-        public string PasswordHash { get; set; }
-        public int UserCategoryId { get; set; } = 4;
-        public bool IsActive { get; set; } = true;
-
-        public List<Project> Projects { get; set; }
+        public int UserCategoryId { get; set; }
     }
 }

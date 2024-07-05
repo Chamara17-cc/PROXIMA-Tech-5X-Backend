@@ -18,13 +18,13 @@ namespace Project_Management_System.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class AuthClientController : ControllerBase
     {
         private readonly IConfiguration _configuration;
         private readonly DataContext _dataContext;
-        private readonly ILogger<AuthController> _logger;
+        private readonly ILogger<AuthClientController> _logger;
 
-        public AuthController(IConfiguration configuration, DataContext dataContext, ILogger<AuthController> logger)
+        public AuthClientController(IConfiguration configuration, DataContext dataContext, ILogger<AuthClientController> logger)
         {
             _configuration = configuration;
             _dataContext = dataContext;
@@ -35,46 +35,46 @@ namespace Project_Management_System.Controllers
         public async Task<ActionResult<AuthenticationResponseDto>> Login(UserLoginDto request)
         {
             // Retrieve user data from the database
-            User user = _dataContext.Users.FirstOrDefault(u => u.UserName == request.UserName);
+            Client client = _dataContext.Clients.FirstOrDefault(u => u.UserName == request.UserName);
 
             // Check if the user exists
-            if (user == null)
+            if (client == null)
             {
                 return BadRequest(new { message = "Enter valid User name." });
             }
 
-            if(user.IsActive ==  false)
+            if (client.IsActive == false)
             {
                 return BadRequest(new { message = "Hi! You cann't login to the System." });
             }
 
             // Check if the user's password hash is not null
-            if (user.PasswordHash == null)
+            if (client.PasswordHash == null)
             {
                 return BadRequest(new { message = "Password hash is missing." });
             }
 
             // Check if password matches
-            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            if (!BCrypt.Net.BCrypt.Verify(request.Password, client.PasswordHash))
             {
                 return BadRequest(new { message = "Incorrect password" });
             }
 
             // Generate JWT token
-            string accessToken = GenerateAccessJwtToken(user);
+            string accessToken = GenerateAccessJwtToken(client);
             string refreshToken = GenerateRefreshToken();
 
             // Handle refresh token
-            var userRefreshToken = _dataContext.RefreshTokens.FirstOrDefault(rt => rt.UserId == user.UserId);
+            var userRefreshToken = _dataContext.RefreshTokenClients.FirstOrDefault(rt => rt.ClientId == client.ClientId);
             if (userRefreshToken == null)
             {
-                userRefreshToken = new RefreshToken
+                userRefreshToken = new RefreshTokenClient
                 {
                     Token = refreshToken,
                     RefreshTokenExpiryTime = DateTime.Now.AddDays(7),
-                    UserId = user.UserId
+                    ClientId = client.ClientId
                 };
-                _dataContext.RefreshTokens.Add(userRefreshToken);
+                _dataContext.RefreshTokenClients.Add(userRefreshToken);
             }
             else
             {
@@ -84,9 +84,7 @@ namespace Project_Management_System.Controllers
 
             _dataContext.SaveChanges();
 
-            //Set the Last loginDate
-            user.LastLoginDate = DateTime.Now;
-            _dataContext.Users.Update(user);
+            _dataContext.Clients.Update(client);
             await _dataContext.SaveChangesAsync();
 
             var response = new AuthenticationResponseDto
@@ -95,10 +93,9 @@ namespace Project_Management_System.Controllers
                 RefreshToken = refreshToken
             };
 
-            
-
             return Ok(response);
         }
+
 
         [HttpPost("logout")]
         public IActionResult Logout([FromBody] UserLogoutDto request)
@@ -107,7 +104,7 @@ namespace Project_Management_System.Controllers
             _logger.LogInformation("Received refresh token: {Token}", request.RefreshToken);
 
             // Find the refresh token entry
-            var refreshTokenEntry = _dataContext.RefreshTokens.FirstOrDefault(rt => rt.Token == request.RefreshToken);
+            var refreshTokenEntry = _dataContext.RefreshTokenClients.FirstOrDefault(rt => rt.Token == request.RefreshToken);
 
             if (refreshTokenEntry == null)
             {
@@ -116,26 +113,27 @@ namespace Project_Management_System.Controllers
             }
 
             // Remove the refresh token entry
-            _dataContext.RefreshTokens.Remove(refreshTokenEntry);
+            _dataContext.RefreshTokenClients.Remove(refreshTokenEntry);
             _dataContext.SaveChanges();
 
             _logger.LogInformation("Refresh token invalidated successfully: {Token}", request.RefreshToken);
             return Ok(new { message = "Logout successful" });
         }
 
+
         [HttpPost("refresh")]
         public ActionResult<AuthenticationResponseDto> Refresh(TokenRefreshRequestDto request)
         {
-            var refreshTokenEntry = _dataContext.RefreshTokens.FirstOrDefault(rt => rt.Token == request.RefreshToken);
+            var refreshTokenEntry = _dataContext.RefreshTokenClients.FirstOrDefault(rt => rt.Token == request.RefreshToken);
 
             if (refreshTokenEntry == null || refreshTokenEntry.RefreshTokenExpiryTime <= DateTime.Now)
             {
                 return Unauthorized(new { message = "Invalid or expired refresh token" });
             }
 
-            var user = _dataContext.Users.FirstOrDefault(u => u.UserId == refreshTokenEntry.UserId);
+            var client = _dataContext.Clients.FirstOrDefault(u => u.ClientId == refreshTokenEntry.ClientId);
 
-            string newAccessToken = GenerateAccessJwtToken(user);
+            string newAccessToken = GenerateAccessJwtToken(client);
             string newRefreshToken = GenerateRefreshToken();
 
             refreshTokenEntry.Token = newRefreshToken;
@@ -151,23 +149,23 @@ namespace Project_Management_System.Controllers
             return Ok(response);
         }
 
-        private string GenerateAccessJwtToken(User user)
+        private string GenerateAccessJwtToken(Client client)
         {
-            var userCategory = GetUserCategoryById(user.UserCategoryId);
+
             List<Claim> claims = new List<Claim>
-            {
-                new Claim("UserID", user.UserId.ToString()),
-                new Claim("UserName", user.UserName),
-                new Claim("UserCategoryId", user.UserCategoryId.ToString()),
-                new Claim("UserCategory", userCategory.UserCategoryType)
-            };
+                {
+                    new Claim("UserID", client.ClientId.ToString()),
+                    new Claim("UserName", client.UserName),
+                    new Claim("UserCategoryId", client.UserCategoryId.ToString()),
+
+                };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
             var token = new JwtSecurityToken(
                     claims: claims,
-                    expires: DateTime.Now.AddHours(2),
+                    expires: DateTime.Now.AddHours(1),
                     signingCredentials: creds
                  );
 
@@ -182,9 +180,6 @@ namespace Project_Management_System.Controllers
             return Convert.ToBase64String(randomNumber);
         }
 
-        private UserCategory GetUserCategoryById(int userCategoryId)
-        {
-            return _dataContext.UsersCategories.FirstOrDefault(uc => uc.UserCategoryId == userCategoryId);
-        }
+
     }
 }

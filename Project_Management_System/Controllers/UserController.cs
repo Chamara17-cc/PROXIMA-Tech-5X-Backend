@@ -175,7 +175,10 @@ namespace Project_Management_System.Controllers
             // Map each user to ViewUserListDto
             var viewUserListDtos = users.Select(user => new ViewUserListDto
             {
+                ImageSrc = String.Format("{0}://{1}{2}/Images/{3}", Request.Scheme, Request.Host, Request.PathBase, user.ProfileImageName),
+                ProfileImageName = user.ProfileImageName,
                 UserId = user.UserId,
+                FirstName = user.FirstName,
                 UserName = user.UserName,
                 Email = user.Email,
                 UserCategoryType = user.UserCategory != null ? user.UserCategory.UserCategoryType : null,
@@ -194,11 +197,13 @@ namespace Project_Management_System.Controllers
 
             if (user == null)
             {
+                Console.WriteLine($"User with ID {request.UserId} not found.");
                 return BadRequest(new { message = "User not found." });
             }
 
             if (!user.IsActive)
             {
+                Console.WriteLine($"User with ID {request.UserId} is already deactivated.");
                 return BadRequest(new { message = "User already deactivated from the system." });
             }
 
@@ -212,7 +217,7 @@ namespace Project_Management_System.Controllers
                     if (oldAdmin != null)
                     {
                         _dataContext.Admins.Remove(oldAdmin);
-                        await _dataContext.SaveChangesAsync();
+                        
                     }
                     break;
                 case "MANAGER":
@@ -220,7 +225,7 @@ namespace Project_Management_System.Controllers
                     if (oldManager != null)
                     {
                         _dataContext.ProjectManagers.Remove(oldManager);
-                        await _dataContext.SaveChangesAsync();
+                        
                     }
                     break;
                 case "DEVELOPER":
@@ -228,7 +233,7 @@ namespace Project_Management_System.Controllers
                     if (oldDeveloper != null)
                     {
                         _dataContext.Developers.Remove(oldDeveloper);
-                        await _dataContext.SaveChangesAsync();
+                        
                     }
                     break;
             }
@@ -236,8 +241,10 @@ namespace Project_Management_System.Controllers
             _dataContext.Users.Update(user);
             await _dataContext.SaveChangesAsync();
 
+            Console.WriteLine($"User with ID {request.UserId} successfully deactivated.");
             return Ok(new { message = "User successfully deactivated." });
         }
+
 
         [HttpPost("reactivate-user")]
         public async Task<IActionResult> ReactivateUser([FromBody] ReactivateUserDto request)
@@ -399,11 +406,15 @@ namespace Project_Management_System.Controllers
 
             var users = _dataContext.Users
                 .Where(u => u.UserId.ToString().ToLower().Contains(term) ||
+                            u.FirstName.ToLower().Contains(term) ||
                             u.UserName.ToLower().Contains(term) ||
                             u.UserCategory.UserCategoryType.ToLower().Contains(term))
                 .Select(u => new ViewUserListDto
                 {
+                    ImageSrc = String.Format("{0}://{1}{2}/Images/{3}", Request.Scheme, Request.Host, Request.PathBase, u.ProfileImageName),
+                    ProfileImageName = u.ProfileImageName,
                     UserId = u.UserId,
+                    FirstName = u.FirstName,
                     UserName = u.UserName,
                     Email = u.Email,
                     UserCategoryType = u.UserCategory.UserCategoryType
