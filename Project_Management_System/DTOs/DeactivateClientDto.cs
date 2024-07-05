@@ -1,9 +1,7 @@
 ﻿namespace Project_Management_System.DTOs
 {
-    public class ReactivateClientDto
+    public class DeactivateClientDto
     {
         public int ClientId { get; set; }
     }
-
 }
-
