@@ -10,5 +10,6 @@ namespace Project_Management_System.Models
         public DateTime? RefreshTokenExpiryTime { get; set; }
         public int ClientId { get; set; }
         public Client Client { get; set; }
+
     }
 }

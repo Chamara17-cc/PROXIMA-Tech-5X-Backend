@@ -17,7 +17,6 @@ namespace Project_Management_System.Models
         public string PasswordHash { get; set; }
         public int UserCategoryId { get; set; } = 4;
         public bool IsActive { get; set; } = true;
-
         public List<Project> Projects { get; set; }
     }
 }

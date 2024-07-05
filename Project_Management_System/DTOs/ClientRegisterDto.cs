@@ -12,4 +12,6 @@
         public string UserName { get; set; }
         public int UserCategoryId { get; set; }
     }
+
 }
+
