@@ -25,8 +25,8 @@ public class TransactionController : ControllerBase
         _mapper = mapper;
     }
 
-    [HttpGet ("register")]
- //   [Authorize(Roles = "1")]
+    [HttpGet("register")]
+    //   [Authorize(Roles = "1")]
     public async Task<ActionResult<List<GetProjectDto>>> GetProject()
     {
         var projectlist = await _transacdatacontext.Projects.ToListAsync();
@@ -34,7 +34,7 @@ public class TransactionController : ControllerBase
     }
 
     [HttpPost("Project/{projectId}/register")]
-   // [Authorize(Roles = "1")]
+    // [Authorize(Roles = "1")]
     public async Task<ActionResult<Transaction>> AddTransaction(AddTransacDto invoice, int projectId)
     {
         try
@@ -107,7 +107,7 @@ public class TransactionController : ControllerBase
     }
 
     [HttpDelete("Transaction/{transacId}/{projectId}/register")]
-  //  [Authorize(Roles = "1")]
+    //  [Authorize(Roles = "1")]
     public async Task<ActionResult> DeleteTransaction(int transacId, int projectId)
     {
         var transaction = await _transacdatacontext.Transactions.FirstOrDefaultAsync(p => p.TransacId == transacId);
@@ -123,8 +123,7 @@ public class TransactionController : ControllerBase
     }
 
     [HttpPut("Transaction/{transacId}/register")]
-   // [Authorize(Roles = "1")]
-    public async Task<ActionResult<Transaction>> UpdateTransaction(double value, string type, string description, int transacId, DateTime? date)
+    public async Task<ActionResult<Transaction>> UpdateTransaction(int transacId, [FromBody] AddTransacDto updatedTransac)
     {
         try
         {
@@ -134,73 +133,45 @@ public class TransactionController : ControllerBase
                 return NotFound("Transaction not found");
             }
 
-            if (!string.IsNullOrEmpty(description))
+            // Update the transaction properties only if they are provided
+            if (!string.IsNullOrEmpty(updatedTransac.Description))
             {
-                existingTransaction.Description = description;
+                existingTransaction.Description = updatedTransac.Description;
             }
 
-            if (date.HasValue)
+            if (updatedTransac.Date != DateTime.MinValue)
             {
-                existingTransaction.Date = date.Value;
+                existingTransaction.Date = updatedTransac.Date;
             }
 
-            /*         if (value != existingTransaction.Value && value != 0)
-                     {
-                         var difference = value - existingTransaction.Value;
-                         if (existingTransaction.Type == type)
-                         {
-                             if (type == "Income")
-                             {
-                                 await UpdateIncome(difference, transacId);
-                             }
-                             else if (type == "Expence")
-                             {
-                                 await UpdateExpense(difference, transacId);
-                             }
-                         }
-                         else if (existingTransaction.Type != type)
-                         {
-                             await UpdateIncomeOrExpense(value, type, transacId);
-                         }
-                         existingTransaction.Value = value;
-                     }
-                     else if (value == existingTransaction.Value && value != 0)
-                     {
-                         if (!string.IsNullOrEmpty(type) && existingTransaction.Type != type)
-                         {
-                             await UpdateIncomeOrExpense(existingTransaction.Value, type, transacId);
-                             existingTransaction.Type = type;
-                         }
-                     }*/
-
-            if (existingTransaction.Type != type)
-
+            if (updatedTransac.Value != 0)
             {
-                if (type == "Income")
+                existingTransaction.Value = updatedTransac.Value;
+            }
+
+            if (!string.IsNullOrEmpty(updatedTransac.Type) && existingTransaction.Type != updatedTransac.Type)
+            {
+                if (updatedTransac.Type == "Income")
                 {
                     existingTransaction.Expence = 0;
-                    existingTransaction.Income = value;
-                    existingTransaction.Value = value;
+                    existingTransaction.Income = updatedTransac.Value;
                 }
-                else if (type == "Expence")
+                else if (updatedTransac.Type == "Expence")
                 {
                     existingTransaction.Income = 0;
-                    existingTransaction.Expence = value;
-                    existingTransaction.Value = value;
+                    existingTransaction.Expence = updatedTransac.Value;
                 }
-                existingTransaction.Type = type;
+                existingTransaction.Type = updatedTransac.Type;
             }
-            else if (existingTransaction.Type == type)
+            else if (existingTransaction.Type == updatedTransac.Type)
             {
                 if (existingTransaction.Type == "Income")
                 {
-                    existingTransaction.Income = value;
-                    existingTransaction.Value = value;
+                    existingTransaction.Income = updatedTransac.Value;
                 }
                 else if (existingTransaction.Type == "Expence")
                 {
-                    existingTransaction.Expence = value;
-                    existingTransaction.Value = value;
+                    existingTransaction.Expence = updatedTransac.Value;
                 }
             }
 
@@ -215,8 +186,6 @@ public class TransactionController : ControllerBase
         }
     }
 }
-
-
 
 
 
