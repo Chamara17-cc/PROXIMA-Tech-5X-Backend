@@ -28,12 +28,11 @@ namespace Project_Management_System.Controllers.ClientSideController
                 payments.AddRange(payment);
             }
 
-            var paymentdtos=new List<ClientPayementDto>();
+            var paymentdtos = new List<ClientPayementDto>();
 
-            foreach(var x in payments)
+            foreach (var x in payments)
             {
                 var z = await _dataContext.Projects.FirstOrDefaultAsync(e => e.ProjectId == x.ProjectId);
-
                 var paymentdto = new ClientPayementDto
                 {
                     ProjectId = x.ProjectId,
@@ -42,12 +41,20 @@ namespace Project_Management_System.Controllers.ClientSideController
                     Mode = x.Mode,
                     PaymentAmount = x.Payment,
                     ProjectName = z.ProjectName,
-                    status = x.Status
+                    status = x.Status,
+                    clientId = z.ClientId,
                 };
                 paymentdtos.Add(paymentdto);
             }
 
             return Ok(paymentdtos);
+        }
+
+        [HttpGet("GetCLientId")]
+        public async Task<IActionResult> GetCLientId()
+        {
+            var clentids = await _dataContext.Clients.Select(e=>e.ClientId).ToListAsync();
+            return Ok(clentids);
         }
 
     }

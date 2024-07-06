@@ -9,5 +9,6 @@
         public DateTime Date {  get; set; }
         public string Mode { get; set; }
         public bool status {  get; set; }
+        public int clientId { get; set; }
     }
 }

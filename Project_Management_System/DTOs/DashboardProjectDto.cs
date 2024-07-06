@@ -12,6 +12,9 @@ namespace Project_Management_System.DTOs
         public string Technologies { get; set; }
         public int? Total {  get; set; }
         public int Paid {  get; set; }
+        public int TotalTask {  get; set; }
+        public int CompletedTask {  get; set; }
+        public int MonthlyPayment { get; set; }
 
     }
 }

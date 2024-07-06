@@ -35,6 +35,7 @@ namespace Project_Management_System.Controllers.AdminClientPaymentControllers
                     Date = payment.PaymentDate,
                     Mode = payment.Mode,
                     status = payment.Status,
+                    clientId=project.ClientId,
                 };
                 paymentlist.Add(paymentdto);
             }

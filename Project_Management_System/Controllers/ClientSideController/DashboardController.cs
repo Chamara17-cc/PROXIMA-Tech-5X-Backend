@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Project_Management_System.Data;
 using System.Runtime.InteropServices;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Project_Management_System.Controllers.ClientSideController
 {
@@ -28,8 +29,15 @@ namespace Project_Management_System.Controllers.ClientSideController
                 int paid = await _dataContext.ClientPayments
                     .Where(e => e.ProjectId == project.ProjectId && (e.Mode == "accepted" || e.Mode == "accept"))
                     .SumAsync(e => e.Payment);
+                var year1 = project.P_StartDate.Year;
+                var year2 = project.P_DueDate.Year;
+                var month1 = project.P_StartDate.Month;
+                var month2 = project.P_DueDate.Month;
+                var months = (year2 - year1) * 12 + (month2 - month1);
+                Console.WriteLine(months);
 
-
+                int totalTask = await _dataContext.Tasks.Where(e => e.ProjectId == project.ProjectId).CountAsync();
+                int completedTask= await _dataContext.Tasks.Where(e=>e.ProjectId == project.ProjectId || e.TaskStatus==1).CountAsync();
                 var projectDto = new DashboardProjectDto
                 {
                     ProjectId = project.ProjectId,
@@ -39,7 +47,10 @@ namespace Project_Management_System.Controllers.ClientSideController
                     EndDate = DateOnly.FromDateTime(project.P_DueDate),
                     StartDate = DateOnly.FromDateTime(project.P_StartDate),
                     Technologies = project.Technologies,
-                    Total = project.InitialBudeget // Use null conditional operator to handle null case
+                    Total = project.InitialBudeget, // Use null conditional operator to handle null case
+                    TotalTask = totalTask,
+                    CompletedTask = completedTask,
+                    MonthlyPayment=(int)project.InitialBudeget/months,
                 };
 
                 projects.Add(projectDto);
