@@ -3,6 +3,6 @@
     public class DeactivateUserDto
     {
         public int UserId { get; set; }
-        public string UserCategoryType { get; set; }
+        
     }
 }

@@ -167,7 +167,7 @@ namespace Project_Management_System.Controllers
 
             var token = new JwtSecurityToken(
                     claims: claims,
-                    expires: DateTime.Now.AddHours(1),
+                    expires: DateTime.Now.AddHours(2),
                     signingCredentials: creds
                  );
 
