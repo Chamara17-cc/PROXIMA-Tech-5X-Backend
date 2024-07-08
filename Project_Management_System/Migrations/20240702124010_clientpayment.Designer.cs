@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Project_Management_System.Data;
 
@@ -11,9 +12,11 @@ using Project_Management_System.Data;
 namespace Project_Management_System.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240702124010_clientpayment")]
+    partial class clientpayment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -139,10 +142,6 @@ namespace Project_Management_System.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentId"));
-
-                    b.Property<string>("Mode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Payment")
                         .HasColumnType("int");
@@ -385,9 +384,6 @@ namespace Project_Management_System.Migrations
                         .HasColumnType("int");
 
                     b.Property<int?>("Duration")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("InitialBudeget")
                         .HasColumnType("int");
 
                     b.Property<string>("Objectives")

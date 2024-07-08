@@ -13,6 +13,7 @@ namespace Project_Management_System.Models
         public DateTime P_StartDate { get; set; }
         public DateTime P_DueDate { get; set; }
         public int? Duration { get; set; }
+        public int? InitialBudeget {  get; set; }
 
         public string? ProjectStatus { get; set; }
         public string? TeamName { get; set; }
@@ -51,6 +52,7 @@ namespace Project_Management_System.Models
         public Budget Budget { get; set; }
 
         public List<Transaction> Transactions { get; set; }
+        public List<ClientPayment> ClientPayment { get; set; }
 
     }
 }
