@@ -166,6 +166,7 @@ namespace Project_Management_System.Controllers.FileUploadControllers
                 Payment = paymentAmount,
                 PaymentDate = paymentDate,
                 Status = true,
+                Mode="pending",
                 ProjectId = ProID
             };
 
