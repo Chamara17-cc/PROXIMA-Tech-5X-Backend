@@ -42,7 +42,7 @@ namespace Project_Management_System.Controllers
                 CreatedDate = request.CreatedDate,
                 DueDate = request.DueDate,
                 TimeDuration = request.TimeDuration,
-                TaskStatus = 0,
+                TaskStatus = 1,
                 Project = project,
                 Developer = dev
 
