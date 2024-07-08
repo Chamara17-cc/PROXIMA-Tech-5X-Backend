@@ -49,8 +49,11 @@ namespace Project_Management_System.Controllers.ClientSideController
                     Technologies = project.Technologies,
                     Total = project.InitialBudeget, // Use null conditional operator to handle null case
                     TotalTask = totalTask,
+                    
+
                     CompletedTask = completedTask,
                     MonthlyPayment=(int)project.InitialBudeget/months,
+                    Status = project.ProjectStatus,
                 };
 
                 projects.Add(projectDto);

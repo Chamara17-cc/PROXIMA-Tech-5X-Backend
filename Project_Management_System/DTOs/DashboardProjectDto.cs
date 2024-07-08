@@ -15,6 +15,7 @@ namespace Project_Management_System.DTOs
         public int TotalTask {  get; set; }
         public int CompletedTask {  get; set; }
         public int MonthlyPayment { get; set; }
+        public string Status { get; set; }
 
     }
 }

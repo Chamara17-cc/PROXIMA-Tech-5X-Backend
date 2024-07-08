@@ -24,7 +24,8 @@ namespace Project_Management_System.Controllers.ClientSideController
             var payments = new List<ClientPayment>();
             foreach (var project in projects)
             {
-                var payment = await _dataContext.ClientPayments.Where(e => e.ProjectId == project && (e.Mode == "accepted" || e.Mode == "accept")).ToListAsync();
+                var payment = await _dataContext.ClientPayments.Where(e => e.ProjectId == project).ToListAsync();
+                // && (e.Mode == "accepted" || e.Mode == "accept")
                 payments.AddRange(payment);
             }
 
