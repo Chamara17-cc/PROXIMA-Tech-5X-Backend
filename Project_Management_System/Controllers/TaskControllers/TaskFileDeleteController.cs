@@ -40,5 +40,29 @@ namespace Project_Management_System.Controllers.TaskControllers
                 return BadRequest(ex.Message);
             }
         }
+
+
+        [HttpDelete("deleteFile")]
+        public async Task<IActionResult> DeleteFile(int fileId)
+        {
+            try
+            {
+                var file = await _context.FileResources.FindAsync(fileId);
+
+                if (file == null)
+                {
+                    return NotFound();
+                }
+
+                _context.FileResources.Remove(file);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
