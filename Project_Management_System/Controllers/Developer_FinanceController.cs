@@ -50,7 +50,7 @@ namespace Project_Management_System.Controllers
                 }
 
                 var totalHours = monthlyTasks.Sum(t => t.TotalTaskTimeDuration);
-                var currentRate = await _dfinancialcontext.DeveloperRates.OrderByDescending(x => x.Rateid).FirstOrDefaultAsync();
+                var currentRate = await _dfinancialcontext.DeveloperRates.Where(t=>t.UpdatedDate.Year==year && t.UpdatedDate.Month==month).OrderByDescending(x => x.Rateid).FirstOrDefaultAsync();
                 double rate = currentRate.CurrentRate;
                 var totalPayment = totalHours * rate;
 
@@ -92,7 +92,32 @@ namespace Project_Management_System.Controllers
                     return NotFound("No payments found for the specified month and year");
                 }
 
+
                 return Ok(monthPayment);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpGet("Monthlyrate")]
+        //  [Authorize(Roles = "3")]
+        public async Task<ActionResult<Payment>> GetMonthlyRate(int month, int year)
+        {
+            try
+            {
+                var monthlyrate = await _dfinancialcontext.DeveloperRates.Where(t => t.UpdatedDate.Year == year && t.UpdatedDate.Month == month).
+                    OrderByDescending(x => x.Rateid).FirstOrDefaultAsync();
+
+
+                if (monthlyrate == null)
+                {
+                    return NotFound("No rate found for the specified month and year");
+                }
+
+
+                return Ok(monthlyrate);
             }
             catch (Exception ex)
             {
