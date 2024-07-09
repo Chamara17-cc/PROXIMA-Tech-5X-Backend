@@ -77,5 +77,33 @@ namespace Project_Management_System.Controllers
 
 
         }
+
+
+        [HttpDelete("{projectId}/{developerId}")]
+        public async Task<ActionResult> DeleteAssignedDev(int projectId, int developerId)
+        {
+            try
+            {
+                var devProject = await _context.DeveloperProjects
+                                               .FirstOrDefaultAsync(dp => dp.ProjectId == projectId && dp.DeveloperId == developerId);
+
+                if (devProject == null)
+                {
+                    return NotFound();
+                }
+
+                _context.DeveloperProjects.Remove(devProject);
+                await _context.SaveChangesAsync();
+
+                return Ok();
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
     }
 }
