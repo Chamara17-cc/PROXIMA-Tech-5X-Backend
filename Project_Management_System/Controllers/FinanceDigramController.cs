@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Project_Management_System.Data;
+using Project_Management_System.Models;
 
 namespace Project_Management_System.Controllers
 {
@@ -29,12 +30,24 @@ namespace Project_Management_System.Controllers
                     return BadRequest();
                 }
                 var budgetlist = await _digramdatacontext.Budgets.FirstOrDefaultAsync(p => p.ProjectId == projectId);
+                if (budgetlist == null)
+                {
+                    return NotFound($"Budget for project ID {projectId} not found.");
+                }
                 var Income = await _digramdatacontext.Transactions   
                 .Where(i => i.ProjectId == projectId && i.Type == "Income")
                 .SumAsync(i => i.Value);
+                if (Income == 0)
+                {
+                    Income = 0;
+                }
                 var Expence = await _digramdatacontext.Transactions
                 .Where(i => i.ProjectId == projectId && i.Type == "Expence")
                 .SumAsync(i => i.Value);
+                if (Expence == 0)
+                {
+                    Expence = 0;
+                }
                 var digramreqdata = new FinanceDigramDto
                 {
                     Remaining = budgetlist.TotalCost-Expence,
