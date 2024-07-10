@@ -29,7 +29,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("AdminId");
 
-                    b.ToTable("Admins", (string)null);
+                    b.ToTable("Admins");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.Budget", b =>
@@ -42,6 +42,9 @@ namespace Project_Management_System.Migrations
 
                     b.Property<double>("ConnectionCost")
                         .HasColumnType("float");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
 
                     b.Property<double>("DeveloperCost")
                         .HasColumnType("float");
@@ -76,7 +79,7 @@ namespace Project_Management_System.Migrations
                     b.HasIndex("ProjectId")
                         .IsUnique();
 
-                    b.ToTable("Budgets", (string)null);
+                    b.ToTable("Budgets");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.Client", b =>
@@ -103,19 +106,22 @@ namespace Project_Management_System.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("NIC")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Password")
+                    b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProfilPhotoLink")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("TotalPayment")
                         .HasColumnType("float");
+
+                    b.Property<int>("UserCategoryId")
+                        .HasColumnType("int");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -123,7 +129,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("ClientId");
 
-                    b.ToTable("Clients", (string)null);
+                    b.ToTable("Clients");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.Developer", b =>
@@ -139,7 +145,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("DeveloperId");
 
-                    b.ToTable("Developers", (string)null);
+                    b.ToTable("Developers");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.DeveloperFinancialRecipt", b =>
@@ -164,7 +170,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("ReceiptId");
 
-                    b.ToTable("DeveloperFinancialRecipts", (string)null);
+                    b.ToTable("DeveloperFinancialRecipts");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.DeveloperProject", b =>
@@ -187,7 +193,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("DeveloperProjects", (string)null);
+                    b.ToTable("DeveloperProjects");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.DeveloperRate", b =>
@@ -206,7 +212,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("Rateid");
 
-                    b.ToTable("DeveloperRates", (string)null);
+                    b.ToTable("DeveloperRates");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.FileResource", b =>
@@ -232,7 +238,7 @@ namespace Project_Management_System.Migrations
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
 
-                    b.Property<int>("TaskId")
+                    b.Property<int?>("TaskId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedDate")
@@ -244,7 +250,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("FileResources", (string)null);
+                    b.ToTable("FileResources");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.Invoice", b =>
@@ -280,7 +286,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("InvoiceId");
 
-                    b.ToTable("Invoices", (string)null);
+                    b.ToTable("Invoices");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.JobRole", b =>
@@ -297,7 +303,37 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("JobRoleId");
 
-                    b.ToTable("JobRoles", (string)null);
+                    b.ToTable("JobRoles");
+                });
+
+            modelBuilder.Entity("Project_Management_System.Models.Payment", b =>
+                {
+                    b.Property<int>("PaymentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentId"));
+
+                    b.Property<int>("DeveloperId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MonthlyWorkedHours")
+                        .HasColumnType("int");
+
+                    b.Property<double>("TotalMonthPayment")
+                        .HasColumnType("float");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("PaymentId");
+
+                    b.HasIndex("DeveloperId");
+
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.Project", b =>
@@ -368,7 +404,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasIndex("ProjectManagerId");
 
-                    b.ToTable("Projects", (string)null);
+                    b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.ProjectManager", b =>
@@ -378,7 +414,57 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("ProjectManagerId");
 
-                    b.ToTable("ProjectManagers", (string)null);
+                    b.ToTable("ProjectManagers");
+                });
+
+            modelBuilder.Entity("Project_Management_System.Models.RefreshToken", b =>
+                {
+                    b.Property<int>("TokenId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TokenId"));
+
+                    b.Property<DateTime?>("RefreshTokenExpiryTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("TokenId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("Project_Management_System.Models.RefreshTokenClient", b =>
+                {
+                    b.Property<int>("TokenId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TokenId"));
+
+                    b.Property<int>("ClientId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("RefreshTokenExpiryTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("TokenId");
+
+                    b.HasIndex("ClientId");
+
+                    b.ToTable("RefreshTokenClients");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.Task", b =>
@@ -442,7 +528,39 @@ namespace Project_Management_System.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("Tasks", (string)null);
+                    b.ToTable("Tasks");
+                });
+
+            modelBuilder.Entity("Project_Management_System.Models.TaskTime", b =>
+                {
+                    b.Property<int>("TaskTimeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TaskTimeId"));
+
+                    b.Property<int>("DeveloperId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TaskId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("TaskTimeCompleteTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("TaskTimeStartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TotalTimeTaskTimeDuration")
+                        .HasColumnType("int");
+
+                    b.HasKey("TaskTimeId");
+
+                    b.HasIndex("DeveloperId");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("TaskTimes");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.Transaction", b =>
@@ -480,7 +598,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("Transactions", (string)null);
+                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.User", b =>
@@ -538,7 +656,7 @@ namespace Project_Management_System.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ProfilePictureLink")
+                    b.Property<string>("ProfileImageName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -555,7 +673,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasIndex("UserCategoryId");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.UserCategory", b =>
@@ -572,7 +690,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("UserCategoryId");
 
-                    b.ToTable("UsersCategories", (string)null);
+                    b.ToTable("UsersCategories");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.ViewInvoice", b =>
@@ -588,7 +706,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("ViewInvoices", (string)null);
+                    b.ToTable("ViewInvoices");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.ViewReport", b =>
@@ -604,7 +722,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("BudgetId");
 
-                    b.ToTable("ViewReports", (string)null);
+                    b.ToTable("ViewReports");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.ViewResource", b =>
@@ -623,7 +741,7 @@ namespace Project_Management_System.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ViewResources", (string)null);
+                    b.ToTable("ViewResources");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.Admin", b =>
@@ -688,13 +806,22 @@ namespace Project_Management_System.Migrations
 
                     b.HasOne("Project_Management_System.Models.Task", "Task")
                         .WithMany("FileResources")
-                        .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TaskId");
 
                     b.Navigation("Project");
 
                     b.Navigation("Task");
+                });
+
+            modelBuilder.Entity("Project_Management_System.Models.Payment", b =>
+                {
+                    b.HasOne("Project_Management_System.Models.Developer", "Developer")
+                        .WithMany("Payment")
+                        .HasForeignKey("DeveloperId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Developer");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.Project", b =>
@@ -735,6 +862,28 @@ namespace Project_Management_System.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Project_Management_System.Models.RefreshToken", b =>
+                {
+                    b.HasOne("Project_Management_System.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Project_Management_System.Models.RefreshTokenClient", b =>
+                {
+                    b.HasOne("Project_Management_System.Models.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+                });
+
             modelBuilder.Entity("Project_Management_System.Models.Task", b =>
                 {
                     b.HasOne("Project_Management_System.Models.Developer", "Developer")
@@ -752,6 +901,25 @@ namespace Project_Management_System.Migrations
                     b.Navigation("Developer");
 
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("Project_Management_System.Models.TaskTime", b =>
+                {
+                    b.HasOne("Project_Management_System.Models.Developer", "Developer")
+                        .WithMany("TaskTimes")
+                        .HasForeignKey("DeveloperId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Project_Management_System.Models.Task", "Task")
+                        .WithMany("TaskTimes")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Developer");
+
+                    b.Navigation("Task");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.Transaction", b =>
@@ -798,6 +966,10 @@ namespace Project_Management_System.Migrations
                 {
                     b.Navigation("DeveloperProjects");
 
+                    b.Navigation("Payment");
+
+                    b.Navigation("TaskTimes");
+
                     b.Navigation("Tasks");
                 });
 
@@ -823,6 +995,8 @@ namespace Project_Management_System.Migrations
             modelBuilder.Entity("Project_Management_System.Models.Task", b =>
                 {
                     b.Navigation("FileResources");
+
+                    b.Navigation("TaskTimes");
                 });
 
             modelBuilder.Entity("Project_Management_System.Models.User", b =>

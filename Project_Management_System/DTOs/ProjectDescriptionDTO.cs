@@ -4,13 +4,13 @@ namespace Project_Management_System.DTOs
     public class ProjectDescriptionDTO
     {
 
-        public string? ProjectName { get; set; }
+        public string ProjectName { get; set; }
 
         public int ProjectId { get; set; }
 
         public string? ProjectDescription { get; set; }
 
-        public string? ProjectObjectives { get; set; }
+        public string? Objectives { get; set; }
 
 
 
@@ -20,11 +20,11 @@ namespace Project_Management_System.DTOs
 
 
 
-        public DateTime ProjectStartDate { get; set; }
+        public DateTime P_StartDate { get; set; }
 
-        public int ProjectDuration { get; set; }
+        public int? Duration { get; set; }
 
-        public DateTime ProjectDueDate { get; set; }
+        public DateTime P_DueDate { get; set; }
 
 
     }

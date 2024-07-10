@@ -19,5 +19,9 @@ namespace Project_Management_System.Models
 
         public List<DeveloperProject> DeveloperProjects { get; set; }
 
+        public List<TaskTime> TaskTimes { get; set; }
+        public List<Payment> Payment { get; set; }
+
+
     }
 }

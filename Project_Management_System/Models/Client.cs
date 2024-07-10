@@ -12,11 +12,11 @@ namespace Project_Management_System.Models
         public string? Address { get; set; }
         public string? Email { get; set; }
         public string? ClientDescription { get; set; }
-        public string? ProfilPhotoLink { get; set; }
         public double TotalPayment { get; set; }
         public string UserName { get; set; }
-        public string Password { get; set; }
-
+        public string PasswordHash { get; set; }
+        public int UserCategoryId { get; set; } = 4;
+        public bool IsActive { get; set; } = true;
         public List<Project> Projects { get; set; }
     }
 }

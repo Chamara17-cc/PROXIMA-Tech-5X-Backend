@@ -1,259 +1,191 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Project_Management_System.Data;
-using Project_Management_System.Models;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using Project_Management_System.Data;
+using Project_Management_System.Models;
+using System.Threading.Tasks;
+using System.Diagnostics.Eventing.Reader;
+using Microsoft.AspNetCore.Authorization;
 
-namespace Project_Management_System.Controllers
+
+[Route("api/[controller]")]
+[ApiController]
+public class TransactionController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class TransactionController : ControllerBase
+    private readonly DataContext _transacdatacontext;
+    private readonly IMapper _mapper;
+
+    public TransactionController(DataContext datacontext, IMapper mapper)
     {
-        private readonly DataContext _transacdatacontext;
-        private readonly IMapper _mapper;
+        _transacdatacontext = datacontext;
+        _mapper = mapper;
+    }
 
-        public TransactionController(DataContext datacontext, IMapper mapper)
+    [HttpGet("register")]
+    //   [Authorize(Roles = "1")]
+    public async Task<ActionResult<List<GetProjectDto>>> GetProject()
+    {
+        var projectlist = await _transacdatacontext.Projects.ToListAsync();
+        return Ok(projectlist);
+    }
+
+    [HttpPost("Project/{projectId}/register")]
+    // [Authorize(Roles = "1")]
+    public async Task<ActionResult<Transaction>> AddTransaction(AddTransacDto invoice, int projectId)
+    {
+        try
         {
-            _transacdatacontext = datacontext;
-            _mapper = mapper;
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<List<GetProjectDto>>> GetProject()
-        {
-            var projectlist = await _transacdatacontext.Projects.ToListAsync();
-            return Ok(projectlist);
-        }
-
-        [HttpPost("Project/{projectId}")]
-        public async Task<ActionResult<List<Transaction>>> AddTransactions(AddTransacDto invoice, int projectId)
-        {
-            try
+            var project = await _transacdatacontext.Projects.FindAsync(projectId);
+            if (project == null)
             {
-                var i_project = await _transacdatacontext.Projects.FindAsync(projectId);
-                if (i_project == null)
-                {
-                    return NotFound("Project not found");
-                }
+                return NotFound("Project not found");
+            }
 
-                var transactype = invoice.Type;
-                if (transactype == "Income")
-                {
-                    var newIncome = await addincome(invoice.Value, projectId);
-                    var transac = new Transaction //Add values to new transaction object
-                    {
-                        Value = invoice.Value,
-                        Description = invoice.Description,
-                        Type = invoice.Type,
-                        Income = newIncome,
-                        Expence = 0,
-                        Date = invoice.Date,
-                        ProjectId = projectId
-                    };
-                    _transacdatacontext.Transactions.Add(transac);
-                    await _transacdatacontext.SaveChangesAsync();
-                    return Ok(transac);
-                }
-                else if (transactype == "Expence")
-                {
+            var transactionType = invoice.Type;
+            Transaction transaction = new Transaction
+            {
+                Value = invoice.Value,
+                Description = invoice.Description,
+                Type = invoice.Type,
+                Date = invoice.Date,
+                ProjectId = projectId
+            };
 
-                    var newExpence = await addexpence(invoice.Value, projectId);
-                    var transac = new Transaction
-                    {
-                        Value = invoice.Value,
-                        Description = invoice.Description,
-                        Type = invoice.Type,
-                        Expence = newExpence,
-                        Income = 0,
-                        Date = invoice.Date,
-                        ProjectId = projectId
-                    };
-                    _transacdatacontext.Transactions.Add(transac);
-                    await _transacdatacontext.SaveChangesAsync();
-                    return Ok(transac);
-                }
-                else
-                {
-                    return BadRequest("Invalid transaction type");
-                }
-            }
-            catch (Exception ex)
+            if (transactionType == "Income")
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+                transaction.Income = invoice.Value;
+                transaction.Expence = 0;
             }
-        }
+            else if (transactionType == "Expence")
+            {
+                transaction.Expence = invoice.Value;
+                transaction.Income = 0;
+            }
+            else
+            {
+                return BadRequest("Invalid transaction type");
+            }
 
-        [HttpGet("Projects/{projectId}")]
-        public async Task<ActionResult<List<GetTransacDto>>> Gettransac(int projectId)
-        {
-            try
-            {
-                var ProjectId = await _transacdatacontext.Projects.FindAsync(projectId);
-                if (ProjectId == null)
-                {
-                    throw new Exception("Project not exist");
-                }
-                var transacdetails = await _transacdatacontext.Transactions.Where(t => t.ProjectId == projectId).ToListAsync();
-                var transacdto = _mapper.Map<List<GetTransacDto>>(transacdetails);
-                return Ok(transacdto);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-        }
-        [HttpDelete("Transaction/{transacId}")]
-        public async Task<ActionResult<List<Transaction>>> Deletetransac(int transacId)
-        {
-            var transactodelete = await _transacdatacontext.Transactions.FindAsync(transacId);
-            if (transactodelete == null)
-            {
-                return NotFound();
-            }
-            _transacdatacontext.Transactions.Remove(transactodelete);
+            _transacdatacontext.Transactions.Add(transaction);
             await _transacdatacontext.SaveChangesAsync();
-            return NoContent();
-        }
 
-        [HttpPut("Transaction/{transacId}")]
-        public async Task<ActionResult<List<AddTransacDto>>> Updatetransac(double value,string type,string discription, int transacId,DateTime? date)
-        {
-            try
-            {
-                var exsistingtarnsac = await _transacdatacontext.Transactions.FindAsync(transacId);
-                if (exsistingtarnsac == null)
-                {
-                    return BadRequest();
-                }
-                if (!string.IsNullOrEmpty(discription))
-                {
-                    exsistingtarnsac.Description = discription;
-                }
-                if (date.HasValue)
-                {
-                    exsistingtarnsac.Date = date.Value;
-                }
-                if (value !=0)
-                {
-                    var currentValue = exsistingtarnsac.Value;
-                    var difference = value - currentValue;
-                    if (exsistingtarnsac.Type == type)
-                    {
-                        if (type == "Income")
-                        {
-                        await UpdateIncome(difference, transacId);
-
-                        }else if (type == "Expence")
-                        {
-                           await UpdateExpence(difference, transacId);
-                        }
-                        await _transacdatacontext.SaveChangesAsync();
-                    }else
-                    {
-                        await UpdateIncomeORExpence(value,type, transacId);
-                    }
-                    exsistingtarnsac.Value = value;
-                }else
-                {
-                    if (!string.IsNullOrEmpty(type))
-                    {
-
-                        if (exsistingtarnsac.Type != type)
-                        {
-                            var currentvalue = exsistingtarnsac.Value;
-                            await UpdateIncomeORExpence(currentvalue,type, transacId);
-                            exsistingtarnsac.Type = type;
-                        }
-                    }
-                    else
-                    {
-                        exsistingtarnsac.Type = exsistingtarnsac.Type;
-                    }
-                }
-                _transacdatacontext.Entry(exsistingtarnsac).State = EntityState.Modified;
-                await _transacdatacontext.SaveChangesAsync();
-                return Ok(exsistingtarnsac);
-            }
-
-
-            catch (Exception ex)
-            {
-                return StatusCode(500, "An error occurred while processing the request.");
-            }
-        }
-
-        private async Task<double> addincome(double value, int id)
-        {
-            var currentIncome = await _transacdatacontext.Transactions    //Calculate current total income
-           .Where(i => i.ProjectId == id && i.Type == "Income")
-    .       SumAsync(i => i.Value);
-            var newIncome = currentIncome + value;
-            return newIncome;
-        }
-        private async Task<double> addexpence(double value, int id)
-        {
-            var currentExpence = await _transacdatacontext.Transactions    //Calculate current total income
-           .Where(i => i.ProjectId == id && i.Type == "Expence")
-           .SumAsync(i => i.Value);
-            var newExpence = currentExpence + value;
-            return newExpence;
-        }
-
-        private async Task<ActionResult<Transaction>> UpdateIncome(double value, int id)
-        {
-            var transaction = await _transacdatacontext.Transactions.FindAsync(id);
-            if (transaction == null)
-            {
-                return NotFound();
-            }
-            transaction.Income += value;
-            await _transacdatacontext.SaveChangesAsync();
             return Ok(transaction);
         }
-
-        private async Task<ActionResult<Transaction>> UpdateExpence(double value, int id)
+        catch (Exception ex)
         {
-            var transaction = await _transacdatacontext.Transactions.FindAsync(id);
-            if (transaction == null)
+            return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+        }
+    }
+
+    [HttpGet("Projects/{projectId}/register")]
+    //[Authorize(Roles = "1")]
+    public async Task<ActionResult<List<GetTransacDto>>> GetTransactions(int projectId)
+    {
+        try
+        {
+            var project = await _transacdatacontext.Projects.FindAsync(projectId);
+            if (project == null)
             {
-                return NotFound();
+                return NotFound("Project does not exist");
             }
-            transaction.Expence += value;
-            await _transacdatacontext.SaveChangesAsync();
-            return Ok(transaction);
+
+            var transactions = await _transacdatacontext.Transactions
+                .Where(t => t.ProjectId == projectId)
+                .ToListAsync();
+
+            var transactionDtos = _mapper.Map<List<GetTransacDto>>(transactions);
+            return Ok(transactionDtos);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+        }
+    }
+
+    [HttpDelete("Transaction/{transacId}/{projectId}/register")]
+    //  [Authorize(Roles = "1")]
+    public async Task<ActionResult> DeleteTransaction(int transacId, int projectId)
+    {
+        var transaction = await _transacdatacontext.Transactions.FirstOrDefaultAsync(p => p.TransacId == transacId);
+        if (transaction == null)
+        {
+            return NotFound("Transaction not found");
         }
 
-        private async Task<ActionResult<Transaction>> UpdateIncomeORExpence(double updateval,string type, int id)
-        {
-            var transaction = await _transacdatacontext.Transactions.FindAsync(id);
-            if (transaction == null)
-            {
-                return NotFound();
-            }
-            
-            if (type == "Income")
-            {
-                transaction.Expence -= transaction.Value;
-                await UpdateIncome(updateval, id);
-                
-            }else if (type == "Expence")
-            {
-               transaction.Income -= transaction.Value;
-               await UpdateExpence(updateval, id);
-            }
-            await _transacdatacontext.SaveChangesAsync();
-            return Ok(transaction);
-        }
+        _transacdatacontext.Transactions.Remove(transaction);
+        await _transacdatacontext.SaveChangesAsync();
 
+        return NoContent();
+    }
+
+    [HttpPut("Transaction/{transacId}/register")]
+    public async Task<ActionResult<Transaction>> UpdateTransaction(int transacId, [FromBody] AddTransacDto updatedTransac)
+    {
+        try
+        {
+            var existingTransaction = await _transacdatacontext.Transactions.FindAsync(transacId);
+            if (existingTransaction == null)
+            {
+                return NotFound("Transaction not found");
+            }
+
+            // Update the transaction properties only if they are provided
+            if (!string.IsNullOrEmpty(updatedTransac.Description))
+            {
+                existingTransaction.Description = updatedTransac.Description;
+            }
+
+            if (updatedTransac.Date != DateTime.MinValue)
+            {
+                existingTransaction.Date = updatedTransac.Date;
+            }
+
+            if (updatedTransac.Value != 0)
+            {
+                existingTransaction.Value = updatedTransac.Value;
+            }
+
+            if (!string.IsNullOrEmpty(updatedTransac.Type) && existingTransaction.Type != updatedTransac.Type)
+            {
+                if (updatedTransac.Type == "Income")
+                {
+                    existingTransaction.Expence = 0;
+                    existingTransaction.Income = updatedTransac.Value;
+                }
+                else if (updatedTransac.Type == "Expence")
+                {
+                    existingTransaction.Income = 0;
+                    existingTransaction.Expence = updatedTransac.Value;
+                }
+                existingTransaction.Type = updatedTransac.Type;
+            }
+            else if (existingTransaction.Type == updatedTransac.Type)
+            {
+                if (existingTransaction.Type == "Income")
+                {
+                    existingTransaction.Income = updatedTransac.Value;
+                }
+                else if (existingTransaction.Type == "Expence")
+                {
+                    existingTransaction.Expence = updatedTransac.Value;
+                }
+            }
+
+            _transacdatacontext.Entry(existingTransaction).State = EntityState.Modified;
+            await _transacdatacontext.SaveChangesAsync();
+
+            return Ok(existingTransaction);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, "An error occurred while processing the request.");
+        }
     }
 }
-
-
 
 
 

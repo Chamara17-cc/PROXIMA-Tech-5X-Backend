@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Project_Management_System.Data;
+using Project_Management_System.Models;
 
 namespace Project_Management_System.Controllers
 {
@@ -7,5 +9,35 @@ namespace Project_Management_System.Controllers
     [ApiController]
     public class ViewProjectListController : ControllerBase
     {
+        public readonly DataContext _context;
+
+        public ViewProjectListController(DataContext _context)
+        {
+            this._context = _context;
+        }
+
+        public class ViewProjctListDTO
+        {
+            public int proId { get; set; }
+            public string projectName { get; set; }
+            public string projectStatus { get; set; }
+
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Project>>> GetList()
+        {
+            var projects = await _context.Projects
+                .Select(e => new ViewProjctListDTO
+                {
+                    proId = e.ProjectId,
+                    projectName = e.ProjectName,
+                    projectStatus = e.ProjectStatus
+                })
+                .ToListAsync();
+
+            return Ok(projects);
+        }
+
     }
 }

@@ -16,7 +16,7 @@ namespace Project_Management_System.Models
         public int ProjectId { get; set; }
 
         public Task Task { get; set; }
-        public int TaskId { get; set; }
+        public int? TaskId { get; set; }
 
 
 

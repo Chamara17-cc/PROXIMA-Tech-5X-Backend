@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyModel;
 using Project_Management_System.Data;
 
 namespace Project_Management_System.Controllers
@@ -42,6 +43,7 @@ namespace Project_Management_System.Controllers
                 CreatedDate = request.CreatedDate,
                 DueDate = request.DueDate,
                 TimeDuration = request.TimeDuration,
+                TaskStatus = 1,
                 Project = project,
                 Developer = dev
 
@@ -57,5 +59,33 @@ namespace Project_Management_System.Controllers
 
 
         }
+        
+        
+
+        /*
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateTask(int id, UpdateTaskDTO request)
+        {
+            var task = await _context.Tasks.FindAsync(id);
+            if (task == null)
+            {
+                return NotFound();
+            }
+
+            task.TaskName = request.TaskName;
+            task.TaskDescription = request.TaskDescription;
+            task.Technology = request.Technology;
+            task.Dependancy = request.Dependancy;
+            task.Priority = request.Priority;
+            task.CreatedDate = request.CreatedDate;
+            task.DueDate = request.DueDate;
+            task.TimeDuration = request.TimeDuration;
+
+            _context.Entry(task).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }*/
+
     }
 }

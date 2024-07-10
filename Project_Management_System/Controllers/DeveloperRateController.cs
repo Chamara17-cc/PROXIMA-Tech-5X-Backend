@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Project_Management_System.Data;
@@ -23,7 +24,8 @@ namespace Project_Management_System.Controllers
         {
             new DeveloperRate()
         };
-        [HttpPost]
+        [HttpPost("register")]
+     //   [Authorize(Roles = "1")]
         public async Task<ActionResult<DeveloperRate>> AddRate(DeveloperRate updatedRate)
         {
             var newRate = _datacontext.DeveloperRates.Add(updatedRate);
@@ -50,7 +52,8 @@ namespace Project_Management_System.Controllers
              return Ok(setNewRate);
          }*/
 
-        [HttpGet]
+        [HttpGet("register")]
+      //  [Authorize(Roles = "1,2,3")]
         public async Task<ActionResult<GetRateDto>> GetRate()
         {
             var currnetRate = await _datacontext.DeveloperRates.OrderByDescending(x => x.Rateid).FirstOrDefaultAsync();

@@ -17,6 +17,7 @@ namespace Project_Management_System.Models
         public double ConnectionCost { get; set; }
         public double DeveloperCost { get; set; }
         public double OtherExpenses { get; set; }
+        public DateTime Date { get; set; }
 
         [Required]
         public double TotalCost { get; set; }
@@ -26,5 +27,6 @@ namespace Project_Management_System.Models
         [JsonIgnore]
         public Project Project { get; set; }
         public int ProjectId { get; set; } 
+     
     }
 }
